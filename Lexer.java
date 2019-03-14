@@ -61,16 +61,18 @@ public class Lexer {
                         data += (char) sym;
                         state = 1;
                     }
-                    else if ( lower(sym) ) {// upercase letter
+                    else if ( uppercase(sym) ) {
                         data += (char) sym;
-                        state = 2;
+                        state = 1;
                     }
-
-                    else if ( sym == '-' ) {
+                    else if ( lowercase(sym) ){
                         data += (char) sym;
-                        state = 3;
+                        sate = 2
                     }
-
+                    else if ( sym == '-') {
+                      data += (char) sym;
+                      state = 3;
+                    }
                     else if ( digit( sym ) ) {
                         data += (char) sym;
                         state = 4;
@@ -104,16 +106,34 @@ public class Lexer {
                     }
                 }
 
-                else if ( state == 2 ) {
-                    if ( letter(sym) || digit(sym) ) {
+
+
+                //
+                //uppercase
+                else if ( state == 1 ) {
+                    if ( uppercase(sym) || digit(sym)) {
                         data += (char) sym;
-                        state = 2;
+                        state = 1;
                     }
                     else {// done with variable token
                         putBackSymbol( sym );
                         done = true;
                     }
                 }
+
+                else if (state == 2){
+                    if (lowercase(sym) || digit(sym)){
+                        data +=(char) sym;
+                        state = 2;
+                    }
+                    else{
+                        putBackSymbol( sym );
+                        done = true;
+                    }
+                }
+
+
+                //
 
                 else if ( state == 3 ) {
                     if ( digit(sym) ) {
@@ -243,6 +263,25 @@ public class Lexer {
             // generate token depending on stopping state
             Token token;
 
+            if (state == 1){
+                return new Token("class", data)
+            }
+            if (state == 2){
+                if (data.equals("static") || data.equals("for")||
+                    data.equals("return") || data.equals("if") ||
+                    data.equals("else") || data.equals("new") ||
+                    data.equals("void") || data.equals("this")||
+                    data.equals("true") || data.equals("false"))
+            }
+                return new Token(data, "");
+            else{
+                return new Token ("var", data);
+            }
+
+
+            if (state == 2 ){
+                if ( data.equals("for") || data.equals())
+            }
             if ( state == 2 ) {
                 // now anything starting with letter is either a
                 // key word or a "var"
@@ -298,7 +337,7 @@ public class Lexer {
 
     public Token getNextToken() {
         Token token = getNext();
-        System.out.println("                     got token: " + token );
+        System.out.println("  got token: " + token );
         return token;
     }
 
@@ -335,9 +374,16 @@ public class Lexer {
         }
     }// putBackSymbol
 
-    private boolean letter( int code ) {
+    /*private boolean letter( int code ) {
         return 'a'<=code && code<='z' ||
                 'A'<=code && code<='Z';
+    }*/
+
+    private boolean uppercase(int code){
+        return 'A'<=code && code<='Z'
+    }
+    private boolean lowercase(int code){
+        return 'a'<=code && code<='z'
     }
 
     private boolean upper( int code ){
