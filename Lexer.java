@@ -39,7 +39,7 @@ public class Lexer {
         else {
             // produce a token from the input source
 
-            int state = 1;  // state of FA
+            int state = 0;  // state of FA
             String data = "";  // specific info for the token
             boolean done = false;
             int sym;  // holds current symbol
@@ -86,16 +86,13 @@ public class Lexer {
                     }
                     // no comma?
                     else if ( sym == '(' || sym == ')' ||
-                    sym == '=' || sym == '.')
+                    sym == '=' || sym == '.' || sym == ',' || sym == ';')
                     {
                         data += (char) sym;
                         state = 16;
                     }
                     else if ( sym == '/' ) {
                         state = 9;
-                    }
-                    else if ( sym == '\"' ) {
-                        state = 11;
                     }
                     else if ( sym == -1 ) {// end of file
                         state = 15;
@@ -269,29 +266,24 @@ public class Lexer {
                 return new Token( "eof", data );
             }
             else if (state == 16) {
-                if(data.equals('{')){
-                  return new Token ('LBRACE',data);
-                }
-                if(data.equals('}')){
-                  return new Token ('RBRACE',data);
-                }
-                if(data.equals('(')){
-                  return new Token ('LPAREN',data);
-                }
-                if(data.equals(')')){
-                  return new Token ('RPAREN',data);
-                }
-                if(data.equals('=')){
-                  return new Token ('EQUALS',data);
-                }
-                if(data.equals(',')){
-                  return new Token ('COMMA',data);
-                }
-                if(data.equals(';')){
-                  return new Token ('SEMICOLON',data);
-                }
-                if(data.equals('.')){
-                  return new Token ('DOT',data);
+                if(data.equals("{")){
+                  return new Token ("LBRACE",data);
+                } else if(data.equals("}")){
+                  return new Token ("RBRACE",data);
+                } else if(data.equals("(")){
+                  return new Token ("LPAREN",data);
+                } else if(data.equals(")")){
+                  return new Token ("RPAREN",data);
+                } else if(data.equals("=")){
+                  return new Token ("EQUALS",data);
+                } else if(data.equals(",")){
+                  return new Token ("COMMA",data);
+                } else if(data.equals(";")){
+                  return new Token ("SEMICOLON",data);
+                } else if(data.equals(".")){
+                  return new Token ("DOT",data);
+                } else{
+                    return null;
                 }
             }
 
