@@ -222,17 +222,26 @@ public class Lexer {
                 if(data.equals('{')){
                   return new Token ('LBRACE',data);
                 }
-                if(data.equals('{')){
-                  return new Token ('LBRACE',data);
+                if(data.equals('}')){
+                  return new Token ('RBRACE',data);
                 }
-                if(data.equals('{')){
-                  return new Token ('LBRACE',data);
+                if(data.equals('(')){
+                  return new Token ('LPAREN',data);
                 }
-                if(data.equals('{')){
-                  return new Token ('LBRACE',data);
+                if(data.equals(')')){
+                  return new Token ('RPAREN',data);
                 }
-                if(data.equals('{')){
-                  return new Token ('LBRACE',data);
+                if(data.equals('=')){
+                  return new Token ('EQUALS',data);
+                }
+                if(data.equals(',')){
+                  return new Token ('COMMA',data);
+                }
+                if(data.equals(';')){
+                  return new Token ('SEMICOLON',data);
+                }
+                if(data.equals('.')){
+                  return new Token ('DOT',data);
                 }
             }
 
