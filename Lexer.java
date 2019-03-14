@@ -16,7 +16,7 @@ public class Lexer {
     private int lookahead;
 
     // table containing valid escape chars
-    private Hashtable<String, Character> escapeChars = new Hashtable<>();
+    private static Hashtable<String, Character> escapeChars = new Hashtable<>();
 
     // construct a Lexer ready to produce tokens from a file
     public Lexer( String fileName ) {
@@ -76,11 +76,12 @@ public class Lexer {
                         data += (char) sym;
                         state = 8;
                     }
-                    // no comma?
                     else if (sym == '(' || sym == ')' ||
-                            sym == '=' || sym == '.' || sym == ',' || sym == ';') {
+                            sym == '=' || sym == '.' || sym == ','
+                            || sym == ';' || sym == '{' || sym == '}') {
                         data += (char) sym;
                         state = 16;
+                        done = true;
                     }
                     else if (sym == '/') {
                         state = 9;
@@ -105,7 +106,8 @@ public class Lexer {
                         putBackSymbol(sym);
                         done = true;
                     }
-                } else if (state == 2) {
+                }
+                else if (state == 2) {
                     if (lowercase(sym) || digit(sym)) {
                         data += (char) sym;
                         state = 2;
@@ -114,10 +116,6 @@ public class Lexer {
                         done = true;
                     }
                 }
-
-
-                //
-
                 else if (state == 3) {
                     if (digit(sym)) {
                         data += (char) sym;
@@ -168,18 +166,19 @@ public class Lexer {
                 else if (state == 8) {
                     error("You used a basic operator, this is illegal");
                 }
-
-
-                // note: states 7, 8, and 9 are accepting states with
-                //       no arcs out of them, so they are handled
-                //       in the arc going into them
-
-                else if (state == 10) {// saw /, might be single or comment
-                    if (sym == '*') {// starting comment
-                        state = 11;
+                else if (state == 9) {
+                    if (sym == '/'){
+                        state = 10;
+                    } else{
+                        error("Error in lexical analysis phase with symbol "
+                                + sym + " in state " + state);
+                    }
+                }
+                else if (state == 10) {
+                    if (sym == 13 || sym == 10) {// EOL of comment
+                        done = true;
                     } else {
-                        putBackSymbol(sym);
-                        return new Token("single", "/");
+                        state = 10;
                     }
                 }
                 else if (state == 11) {// escape char dig 1
@@ -210,26 +209,21 @@ public class Lexer {
                     }
                 }
                 else if (state == 14) {// find escape char, return to char array building
-                    if (escapeChars.contains(eChar)) {
+                    if (escapeChars.containsKey(eChar)) {
                         data += escapeChars.get(eChar);
                         eChar = "";
+                        putBackSymbol(sym);
                         state = 6;
                     } else {
+                        state = 0;
                         error("Error in lexical analysis phase: /" + eChar + " is not a valid " +
                                 "escape character.");
                     }
-                    // Took out an unnecessary symbol for this phase
-                    putBackSymbol(sym);
                     /* QUESTIONS:
                      * Can escape chars be used outside of strings?
                      * Should we create an Escape Char token?
                        Or should we find the escape char in state 14?
                      */
-
-                }
-                else if (state == 16) {
-                    data += (char) sym;
-                    done = true;
                 }
 
             } while (!done);
@@ -257,8 +251,11 @@ public class Lexer {
             else if ( state == 7 ) {
                 return new Token( "STRING", data );
             }
+            else if ( state == 10 ) {
+                return new Token( "COMMENT", data );
+            }
             else if ( state == 15 ) {
-                return new Token( "eof", data );
+                return new Token( "EOF", data );
             }
             else if (state == 16) {
                 if(data.equals("{")){
@@ -356,9 +353,11 @@ public class Lexer {
     }
 
     public static void main(String[] args) throws Exception {
+        escapeChars.put("097", 'F');
         System.out.print("Enter file name: ");
         Scanner keys = new Scanner( System.in );
         String name = keys.nextLine();
+
 
         Lexer lex = new Lexer( name );
         Token token;
@@ -366,7 +365,7 @@ public class Lexer {
         do{
             token = lex.getNext();
             System.out.println( token.toString() );
-        }while( ! token.getKind().equals( "eof" )  );
+        }while( ! token.getKind().equals( "EOF" )  );
 
     }
 
