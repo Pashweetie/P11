@@ -51,10 +51,19 @@ public class Lexer {
                             sym == 32 ) {// whitespace
                         state = 1;
                     }
-                    else if ( letter(sym) ) {// any letter (not just lowercase)
+
+
+                    else if ( uppercase(sym) ) {
                         data += (char) sym;
-                        state = 2;
+                        state = 1;
                     }
+                    else if ( lowercase(sym) ){
+                        data += (char) sym;
+                        sate = 2
+                    }
+
+
+
                     else if ( digit( sym ) ) {
                         data += (char) sym;
                         state = 3;
@@ -88,16 +97,34 @@ public class Lexer {
                     }
                 }
 
-                else if ( state == 2 ) {
-                    if ( letter(sym) || digit(sym) ) {
+
+
+                //
+                //uppercase 
+                else if ( state == 1 ) {
+                    if ( uppercase(sym) || digit(sym)) {
                         data += (char) sym;
-                        state = 2;
+                        state = 1;
                     }
                     else {// done with variable token
                         putBackSymbol( sym );
                         done = true;
                     }
                 }
+
+                else if (state == 2){
+                    if (lowercase(sym) || digit(sym)){
+                        data +=(char) sym;
+                        state = 2;
+                    }
+                    else{
+                        putBackSymbol( sym );
+                        done = true;
+                    }
+                }
+
+
+                //  
 
                 else if ( state == 3 ) {
                     if ( digit(sym) ) {
@@ -260,9 +287,16 @@ public class Lexer {
         }
     }// putBackSymbol
 
-    private boolean letter( int code ) {
+    /*private boolean letter( int code ) {
         return 'a'<=code && code<='z' ||
                 'A'<=code && code<='Z';
+    }*/
+
+    private boolean uppercase(int code){
+        return 'A'<=code && code<='Z'
+    }
+    private boolean lowercase(int code){
+        return 'a'<=code && code<='z'
     }
 
     private boolean digit( int code ) {
