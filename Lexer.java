@@ -57,8 +57,12 @@ public class Lexer {
                     }
                     else if ( digit( sym ) ) {
                         data += (char) sym;
-                        state = 3;
-                    }
+                        state = 4;
+		    }
+		    else if ( sym == '-') {
+			data += (char) sym;
+			state 3;
+		    }
                     else if ( sym == '.' ) {
                         data += (char) sym;
                         state = 5;
@@ -102,15 +106,12 @@ public class Lexer {
                 else if ( state == 3 ) {
                     if ( digit(sym) ) {
                         data += (char) sym;
-                        state = 3;
-                    }
-                    else if ( sym == '.' ) {
-                        data += (char) sym;
                         state = 4;
                     }
-                    else {// done with number token
-                        putBackSymbol( sym );
-                        done = true;
+                    else { // non-digit following minus sign
+                        error("Error in lexical analysis phase with symbol "
+					+ sym + " in state " + state)
+                        
                     }
 
                 }
@@ -120,20 +121,25 @@ public class Lexer {
                         data += (char) sym;
                         state = 4;
                     }
-                    else {// done with number token
-                        putBackSymbol( sym );
-                        done = true;
+                    else if ( sym == '.' ) {
+                        data += (char) sym;
+			state = 5;
+                    }
+                    else { // non-digit following digits without decimal
+                        error("Error in lexical analysis phase with symbol "
+					+ sym + " in state " + state)
+                        
                     }
                 }
 
                 else if ( state == 5) {
                     if ( digit(sym) ) {
                         data += (char) sym;
-                        state = 4;
+                        state = 5;
                     }
-                    else {
-                        error("Error in lexical analysis phase with symbol "
-                                + sym + " in state " + state );
+                    else { // done with number token
+                        putBackSymbol( sym );
+			done = true;
                     }
                 }
 
