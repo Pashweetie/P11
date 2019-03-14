@@ -62,8 +62,6 @@ public class Lexer {
                         sate = 2
                     }
 
-
-
                     else if ( digit( sym ) ) {
                         data += (char) sym;
                         state = 3;
@@ -213,6 +211,25 @@ public class Lexer {
             // generate token depending on stopping state
             Token token;
 
+            if (state == 1){
+                return new Token("class", data) 
+            }
+            if (state == 2){
+                if (data.equals("static") || data.equals("for")||
+                    data.equals("return") || data.equals("if") ||
+                    data.equals("else") || data.equals("new") || 
+                    data.equals("void") || data.equals("this")||
+                    data.equals("true") || data.equals("false"))
+            }
+                return new Token(data, "");
+            else{
+                return new Token ("var", data);
+            }
+
+
+            if (state == 2 ){
+                if ( data.equals("for") || data.equals())
+            }
             if ( state == 2 ) {
                 // now anything starting with letter is either a
                 // key word or a "var"
@@ -250,7 +267,7 @@ public class Lexer {
 
     public Token getNextToken() {
         Token token = getNext();
-        System.out.println("                     got token: " + token );
+        System.out.println("  got token: " + token );
         return token;
     }
 
