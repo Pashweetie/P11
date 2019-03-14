@@ -220,6 +220,13 @@ public class Lexer {
                      */
 
                 }
+                else if(state==8){
+                  error("You used a basic operator, this is illegal");
+                }
+                else if (state==16){
+                  data += (char) sym;
+                  done = true;
+                }
 
             }while( !done );
 
@@ -245,11 +252,34 @@ public class Lexer {
             else if ( state == 7 ) {
                 return new Token( "string", data );
             }
-            else if ( state == 8 ) {
-                return new Token( "single", data );
-            }
             else if ( state == 9 ) {
                 return new Token( "eof", data );
+            }
+            else if (state == 16) {
+                if(data.equals('{')){
+                  return new Token ('LBRACE',data);
+                }
+                if(data.equals('}')){
+                  return new Token ('RBRACE',data);
+                }
+                if(data.equals('(')){
+                  return new Token ('LPAREN',data);
+                }
+                if(data.equals(')')){
+                  return new Token ('RPAREN',data);
+                }
+                if(data.equals('=')){
+                  return new Token ('EQUALS',data);
+                }
+                if(data.equals(',')){
+                  return new Token ('COMMA',data);
+                }
+                if(data.equals(';')){
+                  return new Token ('SEMICOLON',data);
+                }
+                if(data.equals('.')){
+                  return new Token ('DOT',data);
+                }
             }
 
             else {// Lexer error
