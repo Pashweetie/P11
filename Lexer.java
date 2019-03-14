@@ -15,6 +15,9 @@ public class Lexer {
     // one lookahead physical symbol
     private int lookahead;
 
+    // table containing valid escape chars
+    private Hashtable<String, Character> escapeChars = new Hashtable<>();
+
     // construct a Lexer ready to produce tokens from a file
     public Lexer( String fileName ) {
         try {
@@ -40,6 +43,9 @@ public class Lexer {
             String data = "";  // specific info for the token
             boolean done = false;
             int sym;  // holds current symbol
+
+            String eChar = "";
+
 
             do {
                 sym = getNextSymbol();
@@ -138,9 +144,11 @@ public class Lexer {
                 }
 
                 else if ( state == 6 ) {
-                    if ( (' '<=sym && sym<='~') && sym != '\"' ) {
+                    if ( (' '<=sym && sym<='~') && sym != '\"' && sym != '\\') {
                         data += (char) sym;
-                        state = 5;
+                        state = 6;
+                    } else if( sym == '\\'){
+                        state = 11;
                     }
                     else if ( sym == '\"' ) {
                         state = 7;
@@ -156,29 +164,61 @@ public class Lexer {
                     if ( sym == '*' ) {// starting comment
                         state = 11;
                     }
-                    else {// saw something other than * after /
-                        putBackSymbol( sym );  // for next token
+                    else {
+                        putBackSymbol( sym );
                         return new Token( "single", "/" );
                     }
                 }
 
-                else if ( state == 11 ) {// ignoring most everything
-                    if ( sym == '*' ) {// maybe start of end of comment
+                else if ( state == 11 ) {// escape char dig 1
+                    if ( digit(sym) ) {
                         state = 12;
+                        eChar += (char) sym;
                     }
                     else {
-                        state = 11;  // ignore it
+                        error("Error in lexical analysis phase with symbol "
+                                + sym + " in state " + state );
                     }
                 }
 
-                else if ( state == 12 ) {// looking for / to follow *?
-                    if ( sym == '/' ) {// comment is done
-                        state = 1;  // continue in this call to getNextToken
-                        data = "";
+                else if ( state == 12 ) {// escape char dig 2
+                    if ( digit(sym) ) {
+                        state = 13;
+                        eChar += (char) sym;
                     }
-                    else {// was not end of comment
-                        state = 11;  // go back to ignoring things
+                    else {
+                        error("Error in lexical analysis phase with symbol "
+                                + sym + " in state " + state );
                     }
+                }
+
+                else if ( state == 13 ) {// escape char dig 3
+                    if ( digit(sym) ) {
+                        state = 14;
+                        eChar += (char) sym;
+                    } else {
+                        error("Error in lexical analysis phase with symbol "
+                                + sym + " in state " + state );
+                    }
+                }
+
+                else if ( state == 14 ) {// find escape char, return to char array building
+                    if(escapeChars.contains(eChar)){
+                        data += escapeChars.get(eChar);
+                        eChar = "";
+                        state = 6;
+                    } else{
+                        error("Error in lexical analysis phase: /" + eChar + " is not a valid " +
+                                "escape character.");
+                    }
+                    // Took out an unnecessary symbol for this phase
+                    putBackSymbol(sym);
+                    /* QUESTIONS:
+                     * Can escape chars be used outside of strings?
+                     * Should we create an Escape Char token?
+                       Or should we find the escape char in state 14?
+                     */
+
                 }
 
             }while( !done );
