@@ -52,40 +52,53 @@ public class Lexer {
 
 //                System.out.println("current symbol: " + sym + " state = " + state );
 
-                if ( state == 1 ) {
+                if ( state == 0 ) {
                     if ( sym == 9 || sym == 10 || sym == 13 ||
                             sym == 32 ) {// whitespace
+                        state = 0;
+                    }
+                    else if ( upper(sym) ) {// upercase letter
+                        data += (char) sym;
                         state = 1;
                     }
-                    else if ( letter(sym) ) {// any letter (not just lowercase)
+                    else if ( lower(sym) ) {// upercase letter
                         data += (char) sym;
                         state = 2;
                     }
-                    else if ( digit( sym ) ) {
+
+                    else if ( sym == '-' ) {
                         data += (char) sym;
                         state = 3;
                     }
-                    else if ( sym == '.' ) {
+
+                    else if ( digit( sym ) ) {
                         data += (char) sym;
-                        state = 5;
+                        state = 4;
                     }
-                    ///// CHANGED
-                    else if ( sym == '\"' ) {
+                    else if ( sym == '"' ) {
+                        data += (char) sym;
                         state = 6;
                     }
-                    else if ( sym == '+' || sym == '-' || sym == '*' ||
-                            sym == '(' || sym == ')' ||
-                            sym == ',' || sym == '='
-                            ) {
+                    // '-' in state 3 and '/' in state 9
+                    else if ( sym == '+' ||sym == '*' ) {
                         data += (char) sym;
                         state = 8;
-                        done = true;
+                    }
+                    // no comma?
+                    else if ( sym == '(' || sym == ')' ||
+                    sym == '=' || sym == '.')
+                    {
+                        data += (char) sym;
+                        state = 16;
                     }
                     else if ( sym == '/' ) {
-                        state = 10;
+                        state = 9;
+                    }
+                    else if ( sym == '\"' ) {
+                        state = 11;
                     }
                     else if ( sym == -1 ) {// end of file
-                        state = 9;
+                        state = 15;
                         done = true;
                     }
                     else {
@@ -333,6 +346,14 @@ public class Lexer {
     private boolean letter( int code ) {
         return 'a'<=code && code<='z' ||
                 'A'<=code && code<='Z';
+    }
+
+    private boolean upper( int code ){
+        return 'A'<=code && code<='Z';
+    }
+
+    private boolean lower( int code ){
+        return 'a'<=code && code<='z';
     }
 
     private boolean digit( int code ) {
