@@ -68,8 +68,7 @@ public class Lexer {
                     } else if (digit(sym)) {
                         data += (char) sym;
                         state = 4;
-                    } else if (sym == '"') {
-                        data += (char) sym;
+                    } else if (sym == '\"') {
                         state = 6;
                     }
                     // '-' in state 3 and '/' in state 9
@@ -95,7 +94,6 @@ public class Lexer {
                                 + sym + " in state " + state);
                     }
                 }
-
 
                 //
                 //uppercase
@@ -161,9 +159,16 @@ public class Lexer {
                         state = 11;
                     } else if (sym == '\"') {
                         state = 7;
-                        done = true;
                     }
                 }
+                else if (state == 7){
+                    putBackSymbol(sym);
+                    done = true;
+                }
+                else if (state == 8) {
+                    error("You used a basic operator, this is illegal");
+                }
+
 
                 // note: states 7, 8, and 9 are accepting states with
                 //       no arcs out of them, so they are handled
@@ -221,9 +226,6 @@ public class Lexer {
                        Or should we find the escape char in state 14?
                      */
 
-                }
-                else if (state == 8) {
-                    error("You used a basic operator, this is illegal");
                 }
                 else if (state == 16) {
                     data += (char) sym;
