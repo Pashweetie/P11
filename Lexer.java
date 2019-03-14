@@ -58,11 +58,11 @@ public class Lexer {
                     else if ( digit( sym ) ) {
                         data += (char) sym;
                         state = 4;
-		    }
-		    else if ( sym == '-') {
-			data += (char) sym;
-			state 3;
-		    }
+		            }
+		            else if ( sym == '-') {
+			            data += (char) sym;
+			            state = 3;
+		            }
                     else if ( sym == '.' ) {
                         data += (char) sym;
                         state = 5;
@@ -110,7 +110,7 @@ public class Lexer {
                     }
                     else { // non-digit following minus sign
                         error("Error in lexical analysis phase with symbol "
-					+ sym + " in state " + state)
+					+ sym + " in state " + state);
                         
                     }
 
@@ -127,7 +127,7 @@ public class Lexer {
                     }
                     else { // non-digit following digits without decimal
                         error("Error in lexical analysis phase with symbol "
-					+ sym + " in state " + state)
+					+ sym + " in state " + state);
                         
                     }
                 }
