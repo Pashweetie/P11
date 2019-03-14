@@ -57,23 +57,19 @@ public class Lexer {
                             sym == 32 ) {// whitespace
                         state = 0;
                     }
-                    else if ( upper(sym) ) {// upercase letter
-                        data += (char) sym;
-                        state = 1;
-                    }
                     else if ( uppercase(sym) ) {
                         data += (char) sym;
                         state = 1;
                     }
                     else if ( lowercase(sym) ){
                         data += (char) sym;
-                        sate = 2
+                        state = 2;
                     }
-                    else if ( sym == '-') {
-                      data += (char) sym;
-                      state = 3;
-                    }
-                    else if ( digit( sym ) ) {
+  		              else if ( sym == '-') {
+  			                 data += (char) sym;
+  			                 state = 3;
+  		              }
+                    else if ( sym == '.' ) {
                         data += (char) sym;
                         state = 4;
                     }
@@ -138,15 +134,12 @@ public class Lexer {
                 else if ( state == 3 ) {
                     if ( digit(sym) ) {
                         data += (char) sym;
-                        state = 3;
-                    }
-                    else if ( sym == '.' ) {
-                        data += (char) sym;
                         state = 4;
                     }
-                    else {// done with number token
-                        putBackSymbol( sym );
-                        done = true;
+                    else { // non-digit following minus sign
+                        error("Error in lexical analysis phase with symbol "
+					+ sym + " in state " + state);
+
                     }
 
                 }
@@ -156,20 +149,25 @@ public class Lexer {
                         data += (char) sym;
                         state = 4;
                     }
-                    else {// done with number token
-                        putBackSymbol( sym );
-                        done = true;
+                    else if ( sym == '.' ) {
+                        data += (char) sym;
+			state = 5;
+                    }
+                    else { // non-digit following digits without decimal
+                        error("Error in lexical analysis phase with symbol "
+					+ sym + " in state " + state);
+
                     }
                 }
 
                 else if ( state == 5) {
                     if ( digit(sym) ) {
                         data += (char) sym;
-                        state = 4;
+                        state = 5;
                     }
-                    else {
-                        error("Error in lexical analysis phase with symbol "
-                                + sym + " in state " + state );
+                    else { // done with number token
+                        putBackSymbol( sym );
+			done = true;
                     }
                 }
 
@@ -380,17 +378,9 @@ public class Lexer {
     }*/
 
     private boolean uppercase(int code){
-        return 'A'<=code && code<='Z'
-    }
-    private boolean lowercase(int code){
-        return 'a'<=code && code<='z'
-    }
-
-    private boolean upper( int code ){
         return 'A'<=code && code<='Z';
     }
-
-    private boolean lower( int code ){
+    private boolean lowercase(int code){
         return 'a'<=code && code<='z';
     }
 
