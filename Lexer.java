@@ -336,10 +336,10 @@ public class Lexer {
         }
     }// putBackSymbol
 
-    /*private boolean letter( int code ) {
+    private boolean letter( int code ) {
         return 'a'<=code && code<='z' ||
                 'A'<=code && code<='Z';
-    }*/
+    }
 
     private boolean uppercase(int code){
         return 'A'<=code && code<='Z';
