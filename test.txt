@@ -1,0 +1,4 @@
+class Test(){
+Str st = "okay, does \097";
+Num n = -5.0; // Ben isn't here
+}
