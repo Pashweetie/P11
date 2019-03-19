@@ -232,9 +232,7 @@ public class Lexer {
             Token token;
 
             if (state == 1) {
-                data = data.toLowerCase();
-                if(data.equals("string") ||
-                data.equals("Str") ||  data.equals("Bool") ||
+                if(data.equals("Str") ||  data.equals("Bool") ||
                 data.equals("Lst")  || data.equals("Num")) {
                 return new Token(data.toUpperCase(), data); }
                 else{
