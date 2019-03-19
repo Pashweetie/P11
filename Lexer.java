@@ -233,7 +233,7 @@ public class Lexer {
 
             if (state == 1) {
                 data = data.toLowerCase();
-                if(data.equals("class") || data.equals("string") ||
+                if(data.equals("string") ||
                 data.equals("str") ||  data.equals("bool") ||
                 data.equals("lst")  || data.equals("num")) {
                 return new Token(data.toUpperCase(), data); }
@@ -244,7 +244,7 @@ public class Lexer {
             else if (state == 2) {
                 //TODO:
                 // deal with class here
-                if (data.equals("static") || data.equals("for") ||
+                if (data.equals("class") || data.equals("static") || data.equals("for") ||
                         data.equals("return") || data.equals("if") ||
                         data.equals("else") || data.equals("new") ||
                         data.equals("void") || data.equals("this") ||
