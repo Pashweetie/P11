@@ -99,7 +99,7 @@ public class Lexer {
                 //
                 //uppercase
                 else if (state == 1) {
-                    if (uppercase(sym) || digit(sym)) {
+                    if (letter(sym) || digit(sym)) {
                         data += (char) sym;
                         state = 1;
                     } else {// done with variable token
@@ -234,8 +234,8 @@ public class Lexer {
             if (state == 1) {
                 data = data.toLowerCase();
                 if(data.equals("string") ||
-                data.equals("str") ||  data.equals("bool") ||
-                data.equals("lst")  || data.equals("num")) {
+                data.equals("Str") ||  data.equals("Bool") ||
+                data.equals("Lst")  || data.equals("Num")) {
                 return new Token(data.toUpperCase(), data); }
                 else{
                     return new Token("CLASSNAME", data);
@@ -255,10 +255,10 @@ public class Lexer {
                 }
             }
             else if ( state == 5) {
-                return new Token( "NUM", data );
+                return new Token( "NUMVALUE", data );
             }
             else if ( state == 7 ) {
-                return new Token( "STRING", data );
+                return new Token( "STRINGVALUE", data );
             }
             else if ( state == 10 ) {
                 return new Token( "COMMENT", data );
