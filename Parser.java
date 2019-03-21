@@ -45,6 +45,11 @@ public class Parser {
 
     }
     public Node parseStaticMethod(){
+	System.out.println("-----> parsing <StaticMethod>:");
+
+	Token token = lex.getNextToken();
+	errorCheck( token, "CLASSNAME" );
+
 
     }
     public Node parseConstructor(){
