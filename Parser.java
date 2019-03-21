@@ -44,6 +44,21 @@ public class Parser {
     public Node parseStaticField(){
 
     }
+
+    public Node parseRhs(){
+	System.out.println("-----> parsing <rhs>:");
+
+	Token token = lex.getNextToken();
+	errorCheck( token, "NEW" );
+	
+
+    }
+
+    public Node parseArgsPart(){
+	System.out.println("-----> parsing <argsPart>:");
+
+
+    }
     public Node parseStaticMethod(){
 	System.out.println("-----> parsing <staticMethod>:");
 	Token token = lex.getNextToken();
