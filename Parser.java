@@ -61,10 +61,21 @@ public class Parser {
     public Node parseConstructor(){
 	System.out.println("-----> parsing <constructor>:");
 
-	Token token = lex.getNextToken();
+	Token name = lex.getNextToken();
+	errorCheck( name, "CLASSNAME" );
+	
+	Node first = parseRestOfMethod();
+
+	return new Node( "constructor", name.getDetails(), first, null, null);
+
 
     }
     public Node parseInstanceField(){
+	System.out.println("-----> parsing <instanceField>:);
+	Token name = lex.getNextToken();
+	errorCheck( name, "NAME" );
+
+	return new Node( "instanceField", name.getDetails(), null, null, null );
 
     }
     public Node parseInstanceMethod(){
