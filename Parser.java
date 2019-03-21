@@ -45,14 +45,23 @@ public class Parser {
 
     }
     public Node parseStaticMethod(){
-	System.out.println("-----> parsing <StaticMethod>:");
-
+	System.out.println("-----> parsing <staticMethod>:");
 	Token token = lex.getNextToken();
-	errorCheck( token, "CLASSNAME" );
+	errorCheck( token, "STATIC" );
+
+	Token name = lex.getNextToken();
+	errorCheck( name, "NAME" );
+
+	Node first = parseRestOfMethod();
+
+	return new Node( "staticMethod", name.getDetails(), first, null, null );
 
 
     }
     public Node parseConstructor(){
+	System.out.println("-----> parsing <constructor>:");
+
+	Token token = lex.getNextToken();
 
     }
     public Node parseInstanceField(){
