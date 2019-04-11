@@ -1,12 +1,3 @@
-/*
-    This class provides a recursive descent parser
-    for Corgi (the new version),
-    creating a parse tree which can be interpreted
-    to simulate execution of a Corgi program
-*/
-
-import java.util.*;
-import java.io.*;
 
 public class Parser {
 
@@ -101,9 +92,9 @@ public class Parser {
             Node first = parseList();
             return new Node("expr", first, null, null);
         }
-        else
-        {
-        return new Node("expr", token.getDetails(), null, null, null);
+        else{
+            return new Node("expr", token.getDetails(),
+                    null, null, null);
         }
     }
 
