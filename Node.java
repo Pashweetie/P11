@@ -124,8 +124,8 @@ public class Node {
             children[0].draw( cam, x, y-v, h/2, v );     cam.drawLine( x, y, x, top );
         }
         else if( number == 2 ) {
-            children[0].draw( cam, x-h/2, y-v, h/2, v );     cam.drawLine( x, y, x-h/2, top );
-            children[1].draw( cam, x+h/2, y-v, h/2, v );     cam.drawLine( x, y, x+h/2, top );
+          children[0].draw( cam, x-h, y-v, h-(h*.40), v );     cam.drawLine( x, y, x-h, top );
+          children[1].draw( cam, x+h, y-v, h-(h*.40), v );     cam.drawLine( x, y, x+h, top );
         }
         else if( number == 3 ) {
             children[0].draw( cam, x-h, y-v, h/2, v );     cam.drawLine( x, y, x-h, top );
