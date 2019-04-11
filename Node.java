@@ -6,7 +6,6 @@
 import java.util.*;
 import java.io.*;
 import java.awt.*;
-import java.util.List;
 
 public class Node {
 
@@ -22,7 +21,7 @@ public class Node {
     private Node first, second, third;
 
     // stack of memories for all pending calls
-    private static ArrayList<MemTable> memStack = new ArrayList<>();
+    private static ArrayList<MemTable> memStack = new ArrayList<MemTable>();
     // convenience reference to top MemTable on stack
     private static MemTable table = new MemTable();
 
@@ -155,12 +154,12 @@ public class Node {
 
 //      System.out.println("Executing node " + id + " of kind " + kind );
 
-        if ( kind.equals("defs") ) {
+        if ( kind.equals("program") ) {
             root = this;  // note the root node of entire tree
             first.execute();  // execute the "main" funcCall
         }// program
 
-        else if ( kind.equals("expr") ) {
+        else if ( kind.equals("stmts") ) {
             first.execute();
             // returning is a flag saying that first
             // wants to return, so don't do this node's second
@@ -169,7 +168,7 @@ public class Node {
             }
         }// stmts
 
-        else if ( kind.equals("def") ) {
+        else if ( kind.equals("funcCall") ) {
             // execute a function call as a statement
 
             String funcName = info;
@@ -198,13 +197,6 @@ public class Node {
 
         }// funcCall
 
-        else if ( kind.equals("params")){
-            if( first != null ){
-                first.evaluate();
-            }
-        }
-        //list
-        //items
         else if ( kind.equals("str") ) {
             System.out.print( info );
         }// str
@@ -290,7 +282,7 @@ public class Node {
             // execute a function call to produce a value
 
             String funcName = info;
-            List<String> valueList = new ArrayList<>();
+
             double value;  // have all function calls put their value here
             // to return once at the bottom
 
@@ -311,7 +303,7 @@ public class Node {
                     value = Math.sqrt( arg1 );
                 else if ( funcName.equals("cos") )
                     value = Math.cos( Math.toRadians( arg1 ) );
-                else if ( funcName.equals("sin") )
+		else if ( funcName.equals("sin") )
                     value = Math.sin( Math.toRadians( arg1 ) );
                 else if ( funcName.equals("atan") )
                     value = Math.toDegrees( Math.atan( arg1 ) );
@@ -320,10 +312,26 @@ public class Node {
                 else if ( funcName.equals("trunc") )
                     value = (int) arg1;
                 else if ( funcName.equals("not") )
-                    value = arg1 == 0 ? 1 : 0;
-                else {
+		    value = arg1 == 0 ? 1 : 0;
+                else if ( funcName.equals("null") )
+                	if ( arg1 == null )
+				value = 1;
+			else
+				value = 0;
+                else if ( funcName.equals("num") )
+                    	if ( arg1.matches("-?\\d+(\\.\\d+)?") )
+				value = 1;
+			else
+				value = 0;
+                else if ( funcName.equals("list") )
+			if ( arg1 instaceof Collection<?>){
+				value = 1;
+			else {
+				value = 0;
+			}
+		else {
                     error("unknown bif1 name [" + funcName + "]");
-                    value = -1;
+                    value = 0;
                 }
             }
             else if ( member( funcName, bif2 ) ) {
@@ -344,7 +352,15 @@ public class Node {
                     value = arg1!=0 && arg2!=0 ? 1 : 0;
                 else if ( funcName.equals("or") )
                     value = arg1!=0 || arg2!=0 ? 1 : 0;
-                else {
+                else if ( funcName.equals("plus") )
+                    value =  arg1 + arg2;
+                else if ( funcName.equals("minus") )
+                    value = arg1 - arg2;
+                else if ( funcName.equals("times") )
+                    value = arg1 * arg2;
+                else if ( funcName.equals("div") )
+                    value = arg1 / arg2;
+		else {
                     error("unknown bif2 name [" + funcName + "]");
                     value = -1;
                 }
@@ -373,11 +389,6 @@ public class Node {
 
     }// evaluate
 
-    private final static String[] keywordFunctions0={"nl","read","quit"};
-    private final static String[] keywordFunctions1={"first","rest",  "null","num",  "list",
-            "read", "write","nl", "quote", "quit"};
-    private final static String[] keywordFunctionsMany={"ins","plus","minus", "times", "div", "lt","le", "eq",
-            "ne", "and","or", "not", "define",  "if"};
     private final static String[] bif0 = { "input", "nl" };
     private final static String[] bif1 = { "sqrt", "cos", "sin", "atan",
             "round", "trunc", "not" };
