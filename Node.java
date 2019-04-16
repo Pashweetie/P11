@@ -397,80 +397,79 @@ public class Node {
         }// evaluate
         return 0;
     }
-
-        private final static String[] bif0 = {"input", "nl"};
-        private final static String[] bif1 = {"sqrt", "cos", "sin", "atan",
-                "round", "trunc", "not"};
-        private final static String[] bif2 = {"lt", "le", "eq", "ne", "pow",
+    private final static String[] bif0 = {"input", "nl"};
+    private final static String[] bif1 = {"sqrt", "cos", "sin", "atan",
+                                            "round", "trunc", "not"};
+    private final static String[] bif2 = {"lt", "le", "eq", "ne", "pow",
                 "or", "and"
-        };
+    };
 
-        // return whether target is a member of array
-        private static boolean member (String target, String[]array ){
-            for (int k = 0; k < array.length; k++) {
-                if (target.equals(array[k])) {
-                    return true;
-                }
+    // return whether target is a member of array
+    private static boolean member (String target, String[]array ){
+        for (int k = 0; k < array.length; k++) {
+            if (target.equals(array[k])) {
+                return true;
             }
-            return false;
+        }
+        return false;
+    }
+
+    // given a funcCall node, and for convenience its name,
+    // locate the function in the function defs and
+    // create new memory table with arguments values assigned
+    // to parameters
+    // Also, return root node of body of the function being called
+    private static Node passArgs (Node funcCallNode, String funcName ){
+
+        // locate the function in the function definitions
+
+        Node node = root;  // the program node
+        node = node.second;  // now is the funcDefs node
+        Node fdnode = null;
+        while (node != null && fdnode == null) {
+            if (node.first.info.equals(funcName)) {// found it
+                fdnode = node.first;
+                // System.out.println("located " + funcName + " at node " +
+                //                     fdnode.id );
+            } else {
+                node = node.second;
+            }
         }
 
-        // given a funcCall node, and for convenience its name,
-        // locate the function in the function defs and
-        // create new memory table with arguments values assigned
-        // to parameters
-        // Also, return root node of body of the function being called
-        private static Node passArgs (Node funcCallNode, String funcName ){
+        MemTable newTable = new MemTable();
 
-            // locate the function in the function definitions
-
-            Node node = root;  // the program node
-            node = node.second;  // now is the funcDefs node
-            Node fdnode = null;
-            while (node != null && fdnode == null) {
-                if (node.first.info.equals(funcName)) {// found it
-                    fdnode = node.first;
-                    // System.out.println("located " + funcName + " at node " +
-                    //                     fdnode.id );
-                } else {
-                    node = node.second;
-                }
+        if (fdnode == null) {// function not found
+            error("Function definition for [" + funcName + "] not found");
+            return null;
+        } else {// function name found
+            Node pnode = fdnode.first; // current params node
+            Node anode = funcCallNode.first;  // current args node
+            while (pnode != null && anode != null) {
+                // store argument value under parameter name
+                newTable.store(pnode.first.info,
+                        anode.first.evaluate());
+                // move ahead
+                pnode = pnode.second;
+                anode = anode.second;
             }
 
-            MemTable newTable = new MemTable();
-
-            if (fdnode == null) {// function not found
-                error("Function definition for [" + funcName + "] not found");
-                return null;
-            } else {// function name found
-                Node pnode = fdnode.first; // current params node
-                Node anode = funcCallNode.first;  // current args node
-                while (pnode != null && anode != null) {
-                    // store argument value under parameter name
-                    newTable.store(pnode.first.info,
-                            anode.first.evaluate());
-                    // move ahead
-                    pnode = pnode.second;
-                    anode = anode.second;
-                }
-
-                // detect errors
-                if (pnode != null) {
-                    error("there are more parameters than arguments");
-                } else if (anode != null) {
-                    error("there are more arguments than parameters");
-                }
+            // detect errors
+            if (pnode != null) {
+                error("there are more parameters than arguments");
+            } else if (anode != null) {
+                error("there are more arguments than parameters");
+            }
 
 //         System.out.println("at start of call to " + funcName +
 //                           " memory table is:\n" + newTable );
 
-                // manage the memtable stack
-                memStack.add(newTable);
-                table = newTable;
+            // manage the memtable stack
+            memStack.add(newTable);
+            table = newTable;
 
-                return fdnode;
+            return fdnode;
 
-            }// function name found
-
-        }// passArguments
+        }// function name found
+    }// passArguments
+    
 }// Node
