@@ -314,21 +314,13 @@ public class Node {
                 else if ( funcName.equals("not") )
 		    value = arg1 == 0 ? 1 : 0;
                 else if ( funcName.equals("null") )
-                	if ( arg1 == null )
-				value = 1;
-			else
-				value = 0;
+                    value = arg1 == null ? 1 : 0;
                 else if ( funcName.equals("num") )
-                    	if ( arg1.matches("-?\\d+(\\.\\d+)?") )
-				value = 1;
-			else
-				value = 0;
+                    value = arg1.matches("-?\\d+(\\.\\d+)?") ? 1 : 0;
                 else if ( funcName.equals("list") )
-			if ( arg1 instaceof Collection<?>){
-				value = 1;
-			else {
-				value = 0;
-			}
+		    value = (arg1 instanceof Collection<?>) ? 1 : 0;
+		else if ( funcName.equals("first") )
+		 	return arg1.peekFirst();
 		else {
                     error("unknown bif1 name [" + funcName + "]");
                     value = 0;
@@ -468,3 +460,4 @@ public class Node {
     }// passArguments
 
 }// Node
+
