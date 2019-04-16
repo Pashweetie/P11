@@ -4,8 +4,8 @@
 */
 
 import java.util.*;
-import java.io.*;
 import java.awt.*;
+import java.util.List;
 
 public class Node {
 
@@ -257,17 +257,28 @@ public class Node {
 
     }// execute
 
-    // compute and return value produced by this node
-    public double evaluate() {
+    public static double evaluateDouble(double n){
 
+        return 0;
+    }
+
+    public static List<Double> evaluateList(List<Double> li){
+
+        return null;
+    }
+
+    // needs to return Pist objects
+    public double evaluate() {
+        Double dVal;
 //      System.out.println("Evaluating node " + id + " of kind " + kind );
 
         if (kind.equals("var")) {
-            return table.retrieve(info);
+            dVal = evaluateDouble(table.retrieve(info));
         }// var
 
         else if (kind.equals("num")) {
-            return Double.parseDouble(info);
+            Pist li = new Pist(null, Double.parseDouble(info));
+            dVal = evaluateDouble(Double.parseDouble(info));
         }
         else if (kind.equals("+") || kind.equals("-")) {
             double value1 = first.evaluate();
@@ -330,7 +341,7 @@ public class Node {
                     else
                         value = 0;
                 else if (funcName.equals("num")) {
-                    if (arg1.matches("-?\\d+(\\.\\d+)?"))
+                    if (Double.toString(arg1).matches("-?\\d+(\\.\\d+)?"))
                         value = 1;
                     else
                         value = 0;
@@ -471,5 +482,5 @@ public class Node {
 
         }// function name found
     }// passArguments
-    
+
 }// Node
