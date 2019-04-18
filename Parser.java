@@ -103,7 +103,7 @@ public class Parser {
         }
         else
         {
-        return new Node("expr", token.getDetails(), null, null, null);
+            return new Node("NAME", token.getDetails(), null, null, null);
         }
     }
 
