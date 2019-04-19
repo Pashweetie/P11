@@ -169,93 +169,93 @@ public class Node {
 
     // ask this node to execute itself
     // (for nodes that don't return a value)
-    public void execute() {
-
-//      System.out.println("Executing node " + id + " of kind " + kind );
-
-        if (kind.equals("program")) {
-            root = this;  // note the root node of entire tree
-            first.execute();  // execute the "main" funcCall
-        }// program
-
-        else if (kind.equals("stmts")) {
-            first.execute();
-            // returning is a flag saying that first
-            // wants to return, so don't do this node's second
-            if (second != null && !returning) {
-                second.execute();
-            }
-        }// stmts
-
-        else if (kind.equals("funcCall")) {
-            // execute a function call as a statement
-
-            String funcName = info;
-
-            // handle bifs
-            if (funcName.equals("print")) {
-                // evaluate the single <expr>
-                double value = first.first.evaluate();
-                if ((int) value == value)
-                    System.out.print((int) value);
-                else
-                    System.out.print(value);
-            } else if (funcName.equals("nl")) {
-                System.out.println();
-            } else {// user-defined function
-
-                Node body = passArgs(this, funcName);
-                body.second.execute();
-
-                returning = false;
-
-            }// user-defined function
-
-        }// funcCall
-
-        else if (kind.equals("str")) {
-            System.out.print(info);
-        }// str
-
-        else if (kind.equals("sto")) {
-            double value = first.evaluate();
-            table.store(info, value);
-        }// sto
-
-        else if (kind.equals("if")) {
-            double question = first.evaluate();
-            if (question != 0) {
-                second.execute();
-            } else {
-                third.execute();
-            }
-        }// if
-
-        else if (kind.equals("return")) {
-            returnValue = first.evaluate();
-            // System.out.println("return value is set to " + returnValue );
-
-            returning = true;
-
-            // manage memtables
-            // pop the top mem table
-            memStack.remove(memStack.size() - 1);
-
-            // convenience note new top (if any)
-            if (memStack.size() > 0)
-                table = memStack.get(memStack.size() - 1);
-            else {// notice program is over
-                System.out.println(".......execution halting");
-                System.exit(0);
-            }
-
-        }// return
-
-        else {
-            error("Executing unknown kind of node [" + kind + "]");
-        }
-
-    }// execute
+//    public void execute() {
+//
+////      System.out.println("Executing node " + id + " of kind " + kind );
+//
+//        if (kind.equals("program")) {
+//            root = this;  // note the root node of entire tree
+//            first.execute();  // execute the "main" funcCall
+//        }// program
+//
+//        else if (kind.equals("stmts")) {
+//            first.execute();
+//            // returning is a flag saying that first
+//            // wants to return, so don't do this node's second
+//            if (second != null && !returning) {
+//                second.execute();
+//            }
+//        }// stmts
+//
+//        else if (kind.equals("funcCall")) {
+//            // execute a function call as a statement
+//
+//            String funcName = info;
+//
+//            // handle bifs
+//            if (funcName.equals("print")) {
+//                // evaluate the single <expr>
+//                double value = first.first.evaluate().getNum();
+//                if ((int) value == value)
+//                    System.out.print((int) value);
+//                else
+//                    System.out.print(value);
+//            } else if (funcName.equals("nl")) {
+//                System.out.println();
+//            } else {// user-defined function
+//
+//                Node body = passArgs(this, funcName);
+//                body.second.execute();
+//
+//                returning = false;
+//
+//            }// user-defined function
+//
+//        }// funcCall
+//
+//        else if (kind.equals("str")) {
+//            System.out.print(info);
+//        }// str
+//
+//        else if (kind.equals("sto")) {
+//            double value = first.evaluate().getNum();
+//            table.store(info, value);
+//        }// sto
+//
+//        else if (kind.equals("if")) {
+//            double question = first.evaluate().getNum();
+//            if (question != 0) {
+//                second.execute();
+//            } else {
+//                third.execute();
+//            }
+//        }// if
+//
+//        else if (kind.equals("return")) {
+//            returnValue = first.evaluate().getNum();
+//            // System.out.println("return value is set to " + returnValue );
+//
+//            returning = true;
+//
+//            // manage memtables
+//            // pop the top mem table
+//            memStack.remove(memStack.size() - 1);
+//
+//            // convenience note new top (if any)
+//            if (memStack.size() > 0)
+//                table = memStack.get(memStack.size() - 1);
+//            else {// notice program is over
+//                System.out.println(".......execution halting");
+//                System.exit(0);
+//            }
+//
+//        }// return
+//
+//        else {
+//            error("Executing unknown kind of node [" + kind + "]");
+//        }
+//
+//    }// execute
 
     public static double evaluateDouble(double n){
 
@@ -268,37 +268,44 @@ public class Node {
     }
 
     // needs to return Pist objects
-    public double evaluate() {
-        Double dVal;
+    public Pist evaluate(Pist p) {
+        Pist sub = p; // use sub to make changes to, so we don't change input
+
 //      System.out.println("Evaluating node " + id + " of kind " + kind );
-
+        if(p.next != null){
+            /* Need to find a way to get the value of top level pist,
+             * find the operation for said pist, then go to the next pist.
+             * This will allow us to go deeper in to the pists, evaluate them,
+             * change their next to null, then change their value to
+             * what it was equating to.
+             * We may need to rewrite all of evaluate
+            */
+        }
         if (kind.equals("var")) {
-            dVal = evaluateDouble(table.retrieve(info));
+            return new Pist(table.retrieve(info));
         }// var
-
         else if (kind.equals("num")) {
-            Pist li = new Pist(null, Double.parseDouble(info));
-            dVal = evaluateDouble(Double.parseDouble(info));
+            return new Pist(Double.parseDouble(info));
         }
         else if (kind.equals("+") || kind.equals("-")) {
-            double value1 = first.evaluate();
-            double value2 = second.evaluate();
+            double value1 = first.evaluate().getNum();
+            double value2 = second.evaluate().getNum();
             if (kind.equals("+"))
-                return value1 + value2;
+                return new Pist(value1 + value2);
             else
-                return value1 - value2;
+                return new Pist(value1 - value2);
         }
         else if (kind.equals("*") || kind.equals("/")) {
-            double value1 = first.evaluate();
-            double value2 = second.evaluate();
+            double value1 = first.evaluate().getNum();
+            double value2 = second.evaluate().getNum();
             if (kind.equals("*"))
-                return value1 * value2;
+                return new Pist(value1 * value2);
             else
-                return value1 / value2;
+                return new Pist(value1 / value2);
         }
         else if (kind.equals("opp")) {
-            double value = first.evaluate();
-            return -value;
+            double value = first.evaluate().getNum();
+            return new Pist(-value);
         }
         else if (kind.equals("funcCall")) {
             // execute a function call to produce a value
@@ -319,7 +326,7 @@ public class Node {
                 }
             }
             else if (member(funcName, bif1)) {
-                double arg1 = first.first.evaluate();
+                double arg1 = first.first.evaluate().getNum();
 
                 if (funcName.equals("sqrt"))
                     value = Math.sqrt(arg1);
@@ -356,7 +363,7 @@ public class Node {
                     }
                 }
                 else if (member(funcName, bif2)) {
-                    arg1 = first.first.evaluate();
+                    arg1 = first.first.evaluate().getNum();
                     double arg2 = first.second.first.evaluate();
 
                     if (funcName.equals("lt"))

@@ -1,16 +1,11 @@
 import java.util.List;
 
 public class Pist {
-    private List<Pist> list;
+    Pist next;
     private double num;
 
-    public Pist(List<Pist> li, double n){
-        this.list = li;
+    public Pist(double n){
         this.num = n;
-    }
-
-    public List<Pist> getList(){
-        return this.list;
     }
 
     public double getNum(){
