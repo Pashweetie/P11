@@ -25,17 +25,18 @@ public class Parser {
         Token token = lex.getNextToken();
         errorCheck(token, "LPAREN", "(");
 
+        // needs to check for define specifically
         token = lex.getNextToken();
-        errorCheck(token, "KEYWORD");
+        errorCheck(token, "KEYWORD", "define");
 
         token = lex.getNextToken();
         errorCheck(token, "LPAREN", "(");
 
         Token name = lex.getNextToken();
         errorCheck(name, "NAME");
-
         token = lex.getNextToken();
 
+        // if no params
         if ( token.isKind("RPAREN") ) {
             Node first = parseExpr();
             token = lex.getNextToken();
@@ -43,6 +44,7 @@ public class Parser {
             return new Node("def", name.getDetails(),
                     first, null, null);
         }
+        // if params found
         else {
             lex.putBackToken( token );
             Node first = parseParams();
@@ -81,11 +83,13 @@ public class Parser {
 
         Token token = lex.getNextToken();
 
+        // is a list
         if ( token.isKind("LPAREN") ) {
             lex.putBackToken( token );
             Node first = parseList();
             return new Node("expr", first, null, null);
         }
+        // is a num
         else{
             return new Node("expr", token.getDetails(),
                     null, null, null);
@@ -100,9 +104,19 @@ public class Parser {
 
         token = lex.getNextToken();
 
+        // empty list
         if ( token.isKind("RPAREN") ) {
             return new Node("list", null, null, null);
         }
+        // function call
+        else if ( token.isKind("NAME")){
+            Node first = parseItems();
+            String funcType = token.getDetails();
+            token = lex.getNextToken();
+            errorCheck(token, "RPAREN", ")");
+            return new Node("list", funcType, first, null, null);
+        }
+        // just a list
         else {
             lex.putBackToken( token );
             Node first = parseItems();
@@ -111,16 +125,19 @@ public class Parser {
             return new Node("list", first, null, null);
         }
     }
+
     public Node parseItems(){
         System.out.println("-----> parsing <items>:");
 
         Node first = parseExpr();
         Token token = lex.getNextToken();
 
+        // end of items
         if ( token.isKind("RPAREN") ) {
             lex.putBackToken( token );
             return new Node("items", first, null, null);
         }
+        // either a list or a
         else {
             lex.putBackToken( token );
             Node second = parseItems();

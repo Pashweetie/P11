@@ -263,9 +263,9 @@ public class Node {
         return null;
     }
 
-    // needs to return Pist objects
-    public Pist evaluate(Pist p) {
-        Pist sub = p; // use sub to make changes to, so we don't change input
+    // needs to return Item objects
+    public Item evaluate() {
+        Item sub = p; // use sub to make changes to, so we don't change input
 
 //      System.out.println("Evaluating node " + id + " of kind " + kind );
         if(p.next != null){
@@ -278,30 +278,30 @@ public class Node {
             */
         }
         if (kind.equals("var")) {
-            return new Pist(table.retrieve(info));
+            return new Item(table.retrieve(info));
         }// var
         else if (kind.equals("num")) {
-            return new Pist(Double.parseDouble(info));
+            return new Item(Double.parseDouble(info));
         }
         else if (kind.equals("+") || kind.equals("-")) {
             double value1 = first.evaluate().getNum();
             double value2 = second.evaluate().getNum();
             if (kind.equals("+"))
-                return new Pist(value1 + value2);
+                return new Item(value1 + value2);
             else
-                return new Pist(value1 - value2);
+                return new Item(value1 - value2);
         }
         else if (kind.equals("*") || kind.equals("/")) {
             double value1 = first.evaluate().getNum();
             double value2 = second.evaluate().getNum();
             if (kind.equals("*"))
-                return new Pist(value1 * value2);
+                return new Item(value1 * value2);
             else
-                return new Pist(value1 / value2);
+                return new Item(value1 / value2);
         }
         else if (kind.equals("opp")) {
             double value = first.evaluate().getNum();
-            return new Pist(-value);
+            return new Item(-value);
         }
         else if (kind.equals("funcCall")) {
             // execute a function call to produce a value

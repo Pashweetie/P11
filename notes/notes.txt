@@ -1,0 +1,17 @@
+Parser:
+    * parseDef(): error checks for KEYWORD, while also checking for NAME,
+     but discards keyword info. Why?
+    * Maybe check for kind and details? Needs to be KEYWORD and define respectively
+
+Node:
+    * checks for var, num, and other nonexistent types
+    * need to change types
+
+evaluate:
+* If node.isKind(something):
+    * based on what it is, we know it if has 0, 1, or 2 nodes
+    1. Takes a node,
+    2. Looks at it's children
+    3. tries to get it's children by recursively calling
+    4. children can either be lists or nums
+    5. will return an item type that can be a list or a num

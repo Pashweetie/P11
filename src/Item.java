@@ -1,10 +1,10 @@
 import java.util.List;
 
-public class Pist {
+public class Item {
     private double num;
     private List<Double> list;
 
-    public Pist(double n, List<Double> li){
+    public Item(double n, List<Double> li){
         this.num = n;
         this.list = li;
     }
