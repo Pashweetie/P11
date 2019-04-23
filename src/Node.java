@@ -21,13 +21,9 @@ public class Node {
     private Node first, second, third;
 
     // stack of memories for all pending calls
-    private static ArrayList<MemTable> memStack = new ArrayList<MemTable>();
+    private static ArrayList<MemTable> memStack = new ArrayList<>();
     // convenience reference to top MemTable on stack
     private static MemTable table = new MemTable();
-
-    // status flag that causes <stmts> nodes to abort asking second
-    // to execute
-    private static boolean returning = false;
 
     // value being returned
     private static double returnValue = 0;

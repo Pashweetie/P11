@@ -22,7 +22,6 @@ public class Parser {
     public Node parseDef(){
         System.out.println("-----> parsing <def>:");
 
-
         Token token = lex.getNextToken();
         errorCheck(token, "LPAREN", "(");
 
