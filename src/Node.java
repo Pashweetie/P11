@@ -210,6 +210,24 @@ public class Node {
                         case "div":
                             double div = arg1.getNum() / arg2.getNum();
                             return new Item(div, null);
+                        case "lt":
+                            if(arg1.getNum() < arg2.getNum()) return new Item(1, null);
+                            else return new Item(0, null);
+                        case "le":
+                            if(arg1.getNum() <= arg2.getNum()) return new Item(1, null);
+                            else return new Item(0, null);
+                        case "eq":
+                            if(arg1.getNum() == arg2.getNum()) return new Item(1, null);
+                            else return new Item(0, null);
+                        case "ne":
+                            if(arg1.getNum() != arg2.getNum()) return new Item(1, null);
+                            else return new Item(0, null);
+                        case "and":
+                            if(arg1.getNum() > 0 && arg2.getNum() > 0) return new Item(1, null);
+                            else return new Item(0, null);
+                        case "or":
+                            if(arg1.getNum() > 0 || arg2.getNum() > 0) return new Item(1, null);
+                            else return new Item(0, null);
                         default:
                             System.out.println("Case not yet created for: " + info);
                             break;
