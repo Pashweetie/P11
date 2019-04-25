@@ -1,0 +1,6 @@
+
+(ave(quote(2 3 4 7)))
+(ave(quote(2 3 4 5)))
+(ave(quote(2 3 4 5)))
+(ave(quote(2 3 4 5)))
+(ave(quote(2 3 4 5)))

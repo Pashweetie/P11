@@ -91,7 +91,13 @@ public class Node {
 
     // produce array with the non-null children
     // in order
-    private Node[] getChildren() {
+    public String getKind(){
+      return kind;
+    }
+    public String getInfo(){
+      return info;
+    }
+    public Node[] getChildren() {
         int count = 0;
         if (first != null) count++;
         if (second != null) count++;

@@ -1,11 +1,43 @@
+import java.util.*;
+import java.io.*;
 public class Parser {
 
     private Lexer lex;
+    private Parser parsed;
 
-    public Parser( Lexer lexer ) {
+    public Parser( Lexer lexer, Parser parser ) {
         lex = lexer;
+        parsed = parser;
     }
+    public Node parseProgram(){
+      Token token = lex.getNextToken();
+      errorCheck(token, "LPAREN", "(");
+      token = lex.getNextToken();
+      if(token.isKind("NAME")){
+        Node first = parseName();
+        lex.putBackToken(token);
+        return new Node("PROGRAM",first,null,null);
+      }
+      else if(token.isKind("defs")){
+        Node first = parseDefs();
+        lex.putBackToken(token);
+        return new Node("PROGRAM",first,null,null);
+      }
+      error("if type isnt name or defs this isn't a valid input/file");
+      return new Node(token);
+    }
+    public Node parseName(){
+      Token token = lex.getNextToken();
+      Node thisNode = new Node("NAME",token.getDetails(),null,null,null);
+      Node first = findNode(parsed.parseProgram(),thisNode);
+      if(first!=null){
+        return new Node("NAME",token.getDetails(),first,null,null);
+      }
+      else{
+        return new Node("NAME",token.getDetails(),null,null,null);
+      }
 
+    }
     public Node parseDefs() {
         System.out.println("-----> parsing <defs>:");
         Node first = parseDef();
@@ -144,14 +176,51 @@ public class Parser {
             return new Node("items", first, second, null);
         }
     }
+    private void error(String message){
+      System.out.println(message);
+      System.exit(1);
+    }
 
     // check whether token is correct kind
     private void errorCheck( Token token, String kind ) {
         if( ! token.isKind( kind ) ) {
             System.out.println("Error:  expected " + token +
                     " to be of kind " + kind );
+              try {
+               File fileToDelete = new File("files/repl.txt");
+
+               if (fileToDelete.delete()) {
+                System.out.println("File deleted successfully !");
+               } else {
+                System.out.println("File delete operation failed !");
+               }
+
+              } catch (Exception e) {
+               e.printStackTrace();
+              }
             System.exit(1);
         }
+    }
+    private Node findNode(Node start, Node end){
+      Node[] getStartChildren = start.getChildren();
+
+      if(start.getKind().equals(end.getKind())&&start.getInfo().equals(end.getInfo())){
+        return start;
+      }
+      else{
+        if(getStartChildren.length==0){
+          error("It aint there dog");
+        }
+        else if(getStartChildren.length==1){
+          findNode(getStartChildren[0],end);
+        }
+        else if(getStartChildren.length==2){
+          findNode(getStartChildren[0],end);
+          findNode(getStartChildren[1],end);
+        }
+        error("What even happened");
+        return end;
+      }
     }
 
     // check whether token is correct kind and details
