@@ -15,11 +15,15 @@ public class Corgi {
             name = keys.nextLine();
         }
 
-        Lexer lex = new Lexer( name );
-        Parser parser = new Parser( lex );
+        Lexer fileLex = new Lexer( name );
+        Parser fileParser = new Parser(fileLex );
+        Scanner command = new Scanner(System.in);
+
+        Lexer inputLex = new Lexer(command.nextLine());
+        Parser inputParser = new Parser( inputLex );
 
         // start with <statements>
-        Node root = parser.parseDefs();
+        Node root = inputParser.parseDefs();
 
         // display parse tree for debugging/testing:
         TreeViewer viewer = new TreeViewer("Parse Tree", 0, 0, 800, 500, root );
