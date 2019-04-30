@@ -181,7 +181,7 @@ public class Parser {
             lex.putBackToken( token );
             return new Node("items", first, null, null);
         }
-        // either a list or a
+        // either a list or a num
         else {
             lex.putBackToken( token );
             Node second = parseItems();
