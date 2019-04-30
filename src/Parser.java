@@ -4,6 +4,7 @@ public class Parser {
 
     private Lexer lex;
     private Parser parsed;
+    private ArrayList<Node> defs = new ArrayList<Node>();
 
     public Parser( Lexer lexer, Parser parser ) {
         lex = lexer;
@@ -11,6 +12,9 @@ public class Parser {
     }
     public Node parseProgram(){
       Token token = lex.getNextToken();
+      if(token.isKind("eof")){
+        return new Node("Null","null",null,null,null);
+      }
       errorCheck(token, "LPAREN", "(");
       token = lex.getNextToken();
       if(token.isKind("NAME")){
@@ -29,7 +33,7 @@ public class Parser {
     public Node parseName(){
       Token token = lex.getNextToken();
       Node thisNode = new Node("NAME",token.getDetails(),null,null,null);
-      Node first = findNode(parsed.parseProgram(),thisNode);
+      Node first = findNode(thisNode);
       if(first!=null){
         return new Node("NAME",token.getDetails(),first,null,null);
       }
@@ -42,6 +46,7 @@ public class Parser {
         System.out.println("-----> parsing <defs>:");
         Node first = parseDef();
         Token token = lex.getNextToken();
+        System.out.println("does this even happen?");
         if ( token.isKind("eof") ){
             return new Node("defs", first, null, null);
         }
@@ -73,8 +78,10 @@ public class Parser {
             Node first = parseExpr();
             token = lex.getNextToken();
             errorCheck(token, "RPAREN", ")");
-            return new Node("def", name.getDetails(),
-                    first, null, null);
+            Node def1 = new Node("def",name.getDetails(),first, null,null);
+            System.out.println("happens");
+            defs.add(def1);
+            return def1;
         }
         // if params found
         else {
@@ -85,9 +92,14 @@ public class Parser {
             Node second = parseExpr();
             token = lex.getNextToken();
             errorCheck(token, "RPAREN", ")");
-            return new Node("def", name.getDetails(),
-                    first, second, null);
+            Node def1 = new Node("def",name.getDetails(),first, second,null);
+            System.out.println("happens");
+            defs.add(def1);
+            return def1;
         }
+    }
+    public ArrayList<Node> getDefs(){
+      return defs;
     }
     public Node parseParams() {
         System.out.println("-----> parsing <params>:");
@@ -201,26 +213,15 @@ public class Parser {
             System.exit(1);
         }
     }
-    private Node findNode(Node start, Node end){
-      Node[] getStartChildren = start.getChildren();
-
-      if(start.getKind().equals(end.getKind())&&start.getInfo().equals(end.getInfo())){
-        return start;
+    private Node findNode(Node start){
+      System.out.println("before loop");
+      for(Node node :parsed.getDefs()){
+        System.out.println("works");
+        if(start.getInfo().equals(node.getInfo())){
+          return node;
+        }
       }
-      else{
-        if(getStartChildren.length==0){
-          error("It aint there dog");
-        }
-        else if(getStartChildren.length==1){
-          findNode(getStartChildren[0],end);
-        }
-        else if(getStartChildren.length==2){
-          findNode(getStartChildren[0],end);
-          findNode(getStartChildren[1],end);
-        }
-        error("What even happened");
-        return end;
-      }
+      return new Node("Null","null",null,null,null);
     }
 
     // check whether token is correct kind and details
