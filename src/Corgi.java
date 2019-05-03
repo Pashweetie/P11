@@ -19,12 +19,13 @@ public class Corgi {
         Parser fileParser = new Parser(fileLex,null );
         Scanner command = new Scanner(System.in);
         Node root2 = fileParser.parseProgram();
+
         if(fileParser.getDefs()!=null){
           System.out.println("its not null tho");
         }
 
         Lexer inputLex = new Lexer(command.nextLine());
-        Parser inputParser = new Parser( inputLex,fileParser );
+        Parser inputParser = new Parser( inputLex, fileParser );
 
         // start with <statements>
 
@@ -34,7 +35,7 @@ public class Corgi {
         TreeViewer viewer = new TreeViewer("Parse Tree", 0, 0, 800, 500, root );
 
         // execute the parse tree
-        //root.execute();
+        root.evaluate();
 
     }// main
 

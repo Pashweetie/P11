@@ -4,7 +4,7 @@ public class Parser {
 
     private Lexer lex;
     private Parser parsed;
-    private ArrayList<Node> defs = new ArrayList<Node>();
+    private ArrayList<Node> defs = new ArrayList<>();
 
     public Parser( Lexer lexer, Parser parser ) {
         lex = lexer;
@@ -13,19 +13,24 @@ public class Parser {
     public Node parseProgram(){
       Token token = lex.getNextToken();
       if(token.isKind("eof")){
+          System.out.println("hitting an eof");
         return new Node("Null","null",null,null,null);
       }
       errorCheck(token, "LPAREN", "(");
       token = lex.getNextToken();
       if(token.isKind("NAME")){
+          lex.putBackToken(token);
         Node first = parseName();
-        lex.putBackToken(token);
-        return new Node("PROGRAM",first,null,null);
+        return new Node("program",first,null,null);
       }
       else if(token.isKind("defs")){
         Node first = parseDefs();
         lex.putBackToken(token);
-        return new Node("PROGRAM",first,null,null);
+        return new Node("program",first,null,null);
+      }
+      else if(token.isKind("KEYWORD")){
+          lex.putBackToken(token);
+          return parseList();
       }
       error("if type isnt name or defs this isn't a valid input/file");
       return new Node(token);
@@ -33,7 +38,13 @@ public class Parser {
     public Node parseName(){
       Token token = lex.getNextToken();
       Node thisNode = new Node("NAME",token.getDetails(),null,null,null);
-      Node first = findNode(thisNode);
+      Node first = null;
+      if(parsed.defs.contains(thisNode)){
+          first = findNode(thisNode);
+      } else{
+          System.out.println("ParserNameError: Def " + token.getDetails() + " does not exist.");
+          System.exit(1);
+      }
       if(first!=null){
         return new Node("NAME",token.getDetails(),first,null,null);
       }
@@ -144,20 +155,26 @@ public class Parser {
         System.out.println("-----> parsing <list>:");
 
         Token token = lex.getNextToken();
-        errorCheck(token, "LPAREN", "(");
-
-        token = lex.getNextToken();
 
         // empty list
         if ( token.isKind("RPAREN") ) {
             return new Node("list", null, null, null);
         }
         // function call
-        else if ( token.isKind("NAME")){
-            Node first = parseItems();
+        else if ( token.isKind("NAME") || token.isKind("KEYWORD")){
             String funcType = token.getDetails();
             token = lex.getNextToken();
-            errorCheck(token, "RPAREN", ")");
+
+            // Some functions don't have any args, so handle these here
+            if(token.isKind("RPAREN")){
+                return new Node("list", funcType, null, null, null);
+            }
+            lex.putBackToken(token);
+
+            // only one node here, since the items of a function call are defined as one unit, with micro expressions
+            Node first = parseItems();
+            token = lex.getNextToken();
+            errorCheck(token, "RPAREN");
             return new Node("list", funcType, first, null, null);
         }
         // just a list
@@ -171,22 +188,20 @@ public class Parser {
     }
 
     public Node parseItems(){
+        // wait, an Item can be an expr, or an expr followed by more items
         System.out.println("-----> parsing <items>:");
 
+        // The required expression, all items must have at least one
         Node first = parseExpr();
         Token token = lex.getNextToken();
 
-        // end of items
-        if ( token.isKind("RPAREN") ) {
-            lex.putBackToken( token );
-            return new Node("items", first, null, null);
-        }
-        // either a list or a num
-        else {
-            lex.putBackToken( token );
+        // If there is no rparen, there are more items
+        if(!token.isKind("RPAREN")){
+            lex.putBackToken(token);
             Node second = parseItems();
             return new Node("items", first, second, null);
         }
+        return new Node("items", first, null, null);
     }
     private void error(String message){
       System.out.println(message);
@@ -214,14 +229,12 @@ public class Parser {
         }
     }
     private Node findNode(Node start){
-      System.out.println("before loop");
-      for(Node node :parsed.getDefs()){
-        System.out.println("works");
-        if(start.getInfo().equals(node.getInfo())){
-          return node;
-        }
+      for(Node node : parsed.defs){
+          if(start.getInfo().equals(node.getInfo())){
+              return node;
+          }
       }
-      return new Node("Null","null",null,null,null);
+      return null;
     }
 
     // check whether token is correct kind and details

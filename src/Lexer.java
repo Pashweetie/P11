@@ -36,8 +36,8 @@ public class Lexer {
             try{
               FileWriter file2 = new FileWriter("files/repl.txt",true);
               BufferedWriter writer = new BufferedWriter (file2);
-              writer.newLine();   //Add new line
               writer.write(fileName);
+              writer.newLine();   //Add new line
               writer.close();
               input = new BufferedReader(new FileReader(fileNameInput));
               System.out.println("Problem opening file named [" + fileName + "], instead creating a file based on input");
@@ -165,21 +165,6 @@ public class Lexer {
                         state = 5;
                     }
                 }
-
-                else if ( state == 6 ) {
-                    if ( (' '<=sym && sym<='~') && sym != '\"' ) {
-                        data += (char) sym;
-                        state = 6;
-                    }
-                    else if ( sym == '\"' ) {
-                        state = 7;
-                        done = true;
-                    }
-                }
-
-
-
-
             }while( !done );
 
             // generate token depending on stopping state

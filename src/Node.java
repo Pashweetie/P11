@@ -179,14 +179,18 @@ public class Node {
         Item ans = null;
         if(kind.equals("defs")){
             ans = first.evaluate();
+            System.out.println("evaluating defs: " + ans);
         }
         else if(kind.equals("def")){
+            System.out.println("evaluating def: ");
             // Need to find a place to store custom defs
         }
         else if(kind.equals("params")){
+            System.out.println("evaluating params: ");
             // Need to pass names to funciton
         }
         else if(kind.equals("expr")){
+            System.out.println("evaluating expression: ");
             if(!info.equals("")){
                 return new Item(Double.parseDouble(info), null);
             } else{
@@ -195,17 +199,25 @@ public class Node {
 
         }
         else if(kind.equals("list")){
+            System.out.println("evaluating list: ");
             if(!info.equals("")){
                 if(member(info, bif0)){
                     // no args
                 } else if(member(info, bif1)){
                     Item arg1 = first.evaluate();
                 } else if(member(info, bif2)){
-                    Item arg1 = first.evaluate();
-                    Item arg2 = second.evaluate();
+                    System.out.println("First kind: " + first.getKind());
+                    // 1st first is the arguments of the function
+                    // 2nd first is the expression
+                    // second is the next set of items.
+                    Item arg1 = first.first.evaluate();
+                    Item arg2 = first.second.evaluate();
+                    System.out.println("arg1: " + arg1.getNum());
+                    System.out.println("arg2: " + arg2.getNum());
                     switch (info) {
                         case "plus":
                             double sum = arg1.getNum() + arg2.getNum();
+                            System.out.println("sum = " + sum);
                             return new Item(sum, null);
                         case "minus":
                             double min = arg1.getNum() - arg2.getNum();
@@ -241,10 +253,11 @@ public class Node {
 
                 }
             }
-
         }
         else{ // items
-
+            // an item has to be evaluated
+            // must evaluate for an item that has an expression and an item
+            return first.evaluate();
         }
         return ans;
     }
@@ -259,7 +272,7 @@ public class Node {
         return false;
     }
 
-    // given a funcCall node, and for convenience its name,
+    // given a funcCall node, and for convenience name,
     // locate the function in the function defs and
     // create new memory table with arguments values assigned
     // to parameters
