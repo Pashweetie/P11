@@ -1,8 +1,9 @@
+import java.io.File;
 import java.util.Scanner;
 
 public class Corgi {
 
-    public static void main(String[] args) throws Exception {
+    public static void main(String[] args){
 
         String name;
 
@@ -15,27 +16,45 @@ public class Corgi {
             name = keys.nextLine();
         }
 
-        Lexer fileLex = new Lexer( name );
+        // Objects relating to predefined functions
+        Lexer fileLex = new Lexer(name);
         Parser fileParser = new Parser(fileLex,null );
-        Scanner command = new Scanner(System.in);
+        Scanner scan = new Scanner(System.in);
+
         Node root2 = fileParser.parseProgram();
 
-        if(fileParser.getDefs()!=null){
-          System.out.println("its not null tho");
-        }
+        System.out.println("\nPlease input a command below: ");
 
-        Lexer inputLex = new Lexer(command.nextLine());
-        Parser inputParser = new Parser( inputLex, fileParser );
+        // Objects relating to REPL
+        String command = scan.nextLine();
+        Lexer inputLex = new Lexer(command);
+        Parser inputParser = new Parser(inputLex, fileParser);
 
-        // start with <statements>
-
+        // root node for REPL
         Node root = inputParser.parseProgram();
 
         // display parse tree for debugging/testing:
-        TreeViewer viewer = new TreeViewer("Parse Tree", 0, 0, 800, 500, root );
+        //TreeViewer viewer = new TreeViewer("Parse Tree", 0, 0, 800, 500, root);
 
         // execute the parse tree
-        root.evaluate();
+        Item ans = root.evaluate();
+
+        // return the answer
+        if(ans.getList() == null) System.out.println(command + " = " + ans.getNum());
+        else System.out.println(command + " = " + ans.getList());
+
+        try {
+            File replFile = new File("files/repl.txt");
+            inputLex.closeStream(); // close input stream, so we can delete replFile
+            if (replFile.delete()) {
+                System.out.println("File deleted successfully !");
+            } else {
+                System.out.println("File delete operation failed !");
+            }
+        } catch (Exception e){
+            e.printStackTrace();
+        }
+
 
     }// main
 

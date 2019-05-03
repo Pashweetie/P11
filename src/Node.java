@@ -5,7 +5,6 @@
 
 import java.util.*;
 import java.awt.*;
-import java.util.List;
 
 public class Node {
 
@@ -175,22 +174,23 @@ public class Node {
 
     // needs to return Item objects
     public Item evaluate() {
+        Item arg1, arg2;
 
         Item ans = null;
         if(kind.equals("defs")){
             ans = first.evaluate();
-            System.out.println("evaluating defs: " + ans);
+            System.out.println("Evaluating defs..." + ans);
         }
         else if(kind.equals("def")){
-            System.out.println("evaluating def: ");
+            System.out.println("Evaluating def...");
             // Need to find a place to store custom defs
         }
         else if(kind.equals("params")){
-            System.out.println("evaluating params: ");
+            System.out.println("Evaluating params...");
             // Need to pass names to funciton
         }
         else if(kind.equals("expr")){
-            System.out.println("evaluating expression: ");
+            System.out.println("Evaluating expression...");
             if(!info.equals("")){
                 return new Item(Double.parseDouble(info), null);
             } else{
@@ -199,25 +199,20 @@ public class Node {
 
         }
         else if(kind.equals("list")){
-            System.out.println("evaluating list: ");
+            System.out.println("Evaluating list...");
             if(!info.equals("")){
                 if(member(info, bif0)){
                     // no args
                 } else if(member(info, bif1)){
-                    Item arg1 = first.evaluate();
+                    arg1 = first.evaluate();
                 } else if(member(info, bif2)){
-                    System.out.println("First kind: " + first.getKind());
-                    // 1st first is the arguments of the function
-                    // 2nd first is the expression
-                    // second is the next set of items.
-                    Item arg1 = first.first.evaluate();
-                    Item arg2 = first.second.evaluate();
-                    System.out.println("arg1: " + arg1.getNum());
-                    System.out.println("arg2: " + arg2.getNum());
+
+                    // Adjust arguments accordingly based on if they can be lists or not
+                    arg1 = first.first.evaluate();
+                    arg2 = first.second.evaluate();
                     switch (info) {
                         case "plus":
                             double sum = arg1.getNum() + arg2.getNum();
-                            System.out.println("sum = " + sum);
                             return new Item(sum, null);
                         case "minus":
                             double min = arg1.getNum() - arg2.getNum();
@@ -250,13 +245,13 @@ public class Node {
                             System.out.println("Case not yet created for: " + info);
                             break;
                     }
-
                 }
             }
         }
         else{ // items
             // an item has to be evaluated
             // must evaluate for an item that has an expression and an item
+            System.out.println("Evaluating items...");
             return first.evaluate();
         }
         return ans;

@@ -7,52 +7,52 @@ public class Parser {
     private ArrayList<Node> defs = new ArrayList<>();
 
     public Parser( Lexer lexer, Parser parser ) {
-        lex = lexer;
-        parsed = parser;
+            lex = lexer;
+            parsed = parser;
     }
-    public Node parseProgram(){
-      Token token = lex.getNextToken();
-      if(token.isKind("eof")){
-          System.out.println("hitting an eof");
-        return new Node("Null","null",null,null,null);
-      }
-      errorCheck(token, "LPAREN", "(");
-      token = lex.getNextToken();
-      if(token.isKind("NAME")){
-          lex.putBackToken(token);
-        Node first = parseName();
-        return new Node("program",first,null,null);
-      }
-      else if(token.isKind("defs")){
-        Node first = parseDefs();
-        lex.putBackToken(token);
-        return new Node("program",first,null,null);
-      }
-      else if(token.isKind("KEYWORD")){
-          lex.putBackToken(token);
-          return parseList();
-      }
-      error("if type isnt name or defs this isn't a valid input/file");
-      return new Node(token);
-    }
-    public Node parseName(){
-      Token token = lex.getNextToken();
-      Node thisNode = new Node("NAME",token.getDetails(),null,null,null);
-      Node first = null;
-      if(parsed.defs.contains(thisNode)){
-          first = findNode(thisNode);
-      } else{
-          System.out.println("ParserNameError: Def " + token.getDetails() + " does not exist.");
-          System.exit(1);
-      }
-      if(first!=null){
-        return new Node("NAME",token.getDetails(),first,null,null);
-      }
-      else{
-        return new Node("NAME",token.getDetails(),null,null,null);
-      }
 
+    public Node parseProgram(){
+          Token token = lex.getNextToken();
+          if(token.isKind("eof")){
+              System.out.println("hitting an eof");
+            return new Node("Null","null",null,null,null);
+          }
+          errorCheck(token, "LPAREN", "(");
+          token = lex.getNextToken();
+          if(token.isKind("NAME")){
+              lex.putBackToken(token);
+            Node first = parseName();
+            return new Node("program",first,null,null);
+          }
+          else if(token.isKind("defs")){
+            Node first = parseDefs();
+            lex.putBackToken(token);
+            return new Node("program",first,null,null);
+          }
+          else if(token.isKind("KEYWORD")){
+              System.out.println("Parsing list...");
+              lex.putBackToken(token);
+              return parseList();
+          }
+          error("if type isnt name or defs this isn't a valid input/file");
+          return new Node(token);
     }
+
+    public Node parseName(){
+        Token token = lex.getNextToken();
+        Node thisNode = new Node("NAME",token.getDetails(),null,null,null);
+        Node first = null;
+        if(parsed.defs.contains(thisNode)){
+            first = findNode(thisNode);
+        } else{
+            System.out.println("ParserNameError: Def " + token.getDetails() + " does not exist.");
+            System.exit(1);
+        }
+
+        if(first != null) return new Node("NAME",token.getDetails(),first,null,null);
+        else return new Node("NAME",token.getDetails(),null,null,null);
+    }
+
     public Node parseDefs() {
         System.out.println("-----> parsing <defs>:");
         Node first = parseDef();
@@ -67,7 +67,9 @@ public class Parser {
             return new Node("defs", first, second, null);
         }
     }
+
     public Node parseDef(){
+        Node def1;
         System.out.println("-----> parsing <def>:");
 
         Token token = lex.getNextToken();
@@ -89,10 +91,7 @@ public class Parser {
             Node first = parseExpr();
             token = lex.getNextToken();
             errorCheck(token, "RPAREN", ")");
-            Node def1 = new Node("def",name.getDetails(),first, null,null);
-            System.out.println("happens");
-            defs.add(def1);
-            return def1;
+            def1 = new Node("def",name.getDetails(),first, null,null);
         }
         // if params found
         else {
@@ -103,15 +102,13 @@ public class Parser {
             Node second = parseExpr();
             token = lex.getNextToken();
             errorCheck(token, "RPAREN", ")");
-            Node def1 = new Node("def",name.getDetails(),first, second,null);
-            System.out.println("happens");
-            defs.add(def1);
-            return def1;
+            def1 = new Node("def",name.getDetails(),first, second,null);
         }
+
+        defs.add(def1);
+        return def1;
     }
-    public ArrayList<Node> getDefs(){
-      return defs;
-    }
+
     public Node parseParams() {
         System.out.println("-----> parsing <params>:");
 
@@ -201,8 +198,11 @@ public class Parser {
             Node second = parseItems();
             return new Node("items", first, second, null);
         }
+
+        lex.putBackToken(token);
         return new Node("items", first, null, null);
     }
+
     private void error(String message){
       System.out.println(message);
       System.exit(1);
@@ -229,12 +229,12 @@ public class Parser {
         }
     }
     private Node findNode(Node start){
-      for(Node node : parsed.defs){
-          if(start.getInfo().equals(node.getInfo())){
-              return node;
+          for(Node node : parsed.defs){
+              if(start.getInfo().equals(node.getInfo())){
+                  return node;
+              }
           }
-      }
-      return null;
+          return null;
     }
 
     // check whether token is correct kind and details
@@ -246,6 +246,10 @@ public class Parser {
                     " and details= " + details );
             System.exit(1);
         }
+    }
+
+    public ArrayList<Node> getDefs(){
+        return defs;
     }
 
 }

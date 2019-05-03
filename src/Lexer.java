@@ -16,39 +16,36 @@ public class Lexer {
     private int lookahead;
 
     // construct a Lexer ready to produce tokens from a file
-    public Lexer( String fileName ) {
-        try {
-            BufferedReader input = new BufferedReader( new FileReader( fileName ) );
-        }
-        catch(Exception e) {
-            File fileNameInput = new File("files/repl.txt");
-            try {
-             if (fileNameInput.createNewFile()) {
-              System.out.println("File named " + fileName
-                + " created successfully !");
-             } else {
-              System.out.println("File with name " + fileName
-                + " already exixts !");
-             }
-           } catch (IOException b) {
-             b.printStackTrace();
-            }
-            try{
-              FileWriter file2 = new FileWriter("files/repl.txt",true);
-              BufferedWriter writer = new BufferedWriter (file2);
-              writer.write(fileName);
-              writer.newLine();   //Add new line
-              writer.close();
-              input = new BufferedReader(new FileReader(fileNameInput));
-              System.out.println("Problem opening file named [" + fileName + "], instead creating a file based on input");
-              String input = fileName;
-            } catch (IOException c){
-              System.out.println("failed to create and write file");
-              c.printStackTrace();
-            }
+    public Lexer( String command ){
+        /*
+         * NOTE: Remember to close all file reader streams
+         * somewhere in the code after opening them.
+         * Otherwise, we can't delete repl.txt
+         */
+        try{
+            // Not doing anything with this yet?
+            BufferedReader defFile = new BufferedReader(new FileReader( command ));
+            defFile.close();
+        } catch(Exception e){
+            String replFileName = "files/repl.txt";
 
+            File replFile = new File(replFileName);
+            // Create REPL file
+            try{
+                FileWriter file = new FileWriter(replFileName,true);
+                BufferedWriter writer = new BufferedWriter (file);
+                writer.write(command);
+                writer.newLine();   //Add new line
+                writer.close();
+                file.close();
+
+                input = new BufferedReader(new FileReader(replFile));
+            } catch (IOException c){
+                System.out.println("failed to create and write file");
+                c.printStackTrace();
+            }
         }
-        stack = new Stack<Token>();
+        stack = new Stack<>();
         lookahead = 0;  // indicates no lookahead symbol present
     }// constructor
 
@@ -279,32 +276,13 @@ public class Lexer {
         System.exit(1);
     }
 
-    public static void main(String[] args) throws Exception {
-        System.out.print("Enter file name: ");
-        Scanner keys = new Scanner( System.in );
-        String name = keys.nextLine();
-
-        Lexer lex = new Lexer( name );
-        Token token;
-
-        do{
-            token = lex.getNext();
-            System.out.println( token.toString() );
-        }while( ! token.getKind().equals( "eof" )  );
-
+    public void closeStream(){
         try {
-         File fileToDelete = new File("files/repl.txt");
-
-         if (fileToDelete.delete()) {
-          System.out.println("File deleted successfully !");
-         } else {
-          System.out.println("File delete operation failed !");
-         }
-
-        } catch (Exception e) {
-         e.printStackTrace();
+            input.close();
+        } catch(Exception e){
+            System.out.println(e + ": Couldn't close input file bufferedReader");
+            System.exit(1);
         }
-
     }
 
 }
