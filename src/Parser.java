@@ -137,7 +137,6 @@ public class Parser {
 
         // is a list
         if ( token.isKind("LPAREN") ) {
-            lex.putBackToken( token );
             Node first = parseList();
             return new Node("expr", first, null, null);
         }
@@ -159,16 +158,43 @@ public class Parser {
         }
         // function call
         else if ( token.isKind("NAME") || token.isKind("KEYWORD")){
-            String funcType = token.getDetails();
+            String funcType = token.getDetails(); // will be empty string if it is just a list of items
             token = lex.getNextToken();
 
-            // Some functions don't have any args, so handle these here
+            // Some functions/lists don't have any items, so handle these here
             if(token.isKind("RPAREN")){
                 return new Node("list", funcType, null, null, null);
             }
+            // encountered a nested list or function call
+            else if(token.isKind("LPAREN")){
+                // first is a list or function call
+                Node first = parseList();
+
+                token = lex.getNextToken();
+                // if next item happens to be another list or function call
+                if(token.isKind("LPAREN")){
+                    Node second = parseList();
+                    token = lex.getNextToken();
+                    errorCheck(token, "RPAREN"); // close greater list
+                    return new Node("list", funcType, first, second, null);
+                }
+                // if next item is just a number
+                else if(!token.isKind("RPAREN")){
+                    Node second = parseItems();
+                    token = lex.getNextToken();
+                    errorCheck(token, "RPAREN");
+                    return new Node("list", funcType, first, second, null);
+                }
+                // if there is no next item
+                else{
+                    errorCheck(token, "RPAREN");
+                    return new Node("list", funcType, first, null, null);
+                }
+            }
             lex.putBackToken(token);
 
-            // only one node here, since the items of a function call are defined as one unit, with micro expressions
+            // only one node here, since the items of a function call are treated like a list
+            // A list will be treated exactly the same
             Node first = parseItems();
             token = lex.getNextToken();
             errorCheck(token, "RPAREN");

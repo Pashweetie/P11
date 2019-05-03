@@ -5,6 +5,7 @@
 
 import java.util.*;
 import java.awt.*;
+import java.util.List;
 
 public class Node {
 
@@ -207,9 +208,17 @@ public class Node {
                     arg1 = first.evaluate();
                 } else if(member(info, bif2)){
 
-                    // Adjust arguments accordingly based on if they can be lists or not
-                    arg1 = first.first.evaluate();
-                    arg2 = first.second.evaluate();
+                    // Since list can only possess one "items" node, must create
+                    // this special case
+                    if(first.getKind().equals("items")) {
+                        arg1 = first.first.evaluate();
+                        arg2 = first.second.evaluate();
+                    }
+                    // For lists and functions
+                    else{
+                        arg1 = first.evaluate();
+                        arg2 = second.evaluate();
+                    }
                     switch (info) {
                         case "plus":
                             double sum = arg1.getNum() + arg2.getNum();
@@ -246,6 +255,8 @@ public class Node {
                             break;
                     }
                 }
+            } else{
+                // just a list
             }
         }
         else{ // items
