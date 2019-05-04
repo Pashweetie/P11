@@ -28,8 +28,25 @@ public class Lexer {
             defFile.close();
         } catch(Exception e){
             String replFileName = "files/repl.txt";
-
+            String fileFolderName = "files/";
             File replFile = new File(replFileName);
+            File fileFolder = new File(fileFolderName);
+
+            // create files/ and files/repl.txt if non existent
+            try {
+                if(fileFolder.mkdir()){
+                    System.out.println("Created files/...");
+                } else{
+                    System.out.println("files/ already exists");
+                }
+                if(replFile.createNewFile()){
+                    System.out.println("Created repl.txt...");
+                } else{
+                    System.out.println("repl.txt already exists.");
+                }
+            } catch(IOException b){
+                b.printStackTrace();
+            }
             // Create REPL file
             try{
                 FileWriter file = new FileWriter(replFileName,true);

@@ -193,6 +193,7 @@ public class Node {
         else if(kind.equals("expr")){
             System.out.println("Evaluating expression...");
             if(!info.equals("")){
+                System.out.println("info: " + info + " parsed: " + Double.parseDouble(info));
                 return new Item(Double.parseDouble(info), null);
             } else{
                 ans = first.evaluate();

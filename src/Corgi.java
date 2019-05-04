@@ -2,9 +2,7 @@ import java.io.File;
 import java.util.Scanner;
 
 public class Corgi {
-
     public static void main(String[] args){
-
         String name;
 
         if ( args.length == 1 ) {
@@ -20,39 +18,45 @@ public class Corgi {
         Lexer fileLex = new Lexer(name);
         Parser fileParser = new Parser(fileLex,null );
         Scanner scan = new Scanner(System.in);
-
         Node root2 = fileParser.parseProgram();
 
         System.out.println("\nPlease input a command below: ");
-
-        // Objects relating to REPL
+        System.out.print("\n> ");
         String command = scan.nextLine();
-        Lexer inputLex = new Lexer(command);
-        Parser inputParser = new Parser(inputLex, fileParser);
 
-        // root node for REPL
-        Node root = inputParser.parseProgram();
+        // REPL bash
+        while(!command.equals("exit")) {
+            // Objects relating to REPL
+            Lexer inputLex = new Lexer(command);
+            Parser inputParser = new Parser(inputLex, fileParser);
 
-        // display parse tree for debugging/testing:
-        //TreeViewer viewer = new TreeViewer("Parse Tree", 0, 0, 800, 500, root);
+            // root node for REPL
+            Node root = inputParser.parseProgram();
 
-        // execute the parse tree
-        Item ans = root.evaluate();
+            // display parse tree for debugging/testing:
+            //TreeViewer viewer = new TreeViewer("Parse Tree", 0, 0, 800, 500, root);
 
-        // return the answer
-        if(ans.getList() == null) System.out.println(command + " = " + ans.getNum());
-        else System.out.println(command + " = " + ans.getList());
+            Item ans = root.evaluate();
 
-        try {
-            File replFile = new File("files/repl.txt");
-            inputLex.closeStream(); // close input stream, so we can delete replFile
-            if (replFile.delete()) {
-                System.out.println("File deleted successfully !");
-            } else {
-                System.out.println("File delete operation failed !");
+            // return the answer
+            if (ans.getList() == null) System.out.println(command + " = " + ans.getNum());
+            else System.out.println(command + " = " + ans.getList());
+
+            // try deleting repl.txt
+            try {
+                File replFile = new File("files/repl.txt");
+                inputLex.closeStream(); // close input stream, so we can delete replFile
+                if (replFile.delete()) {
+                    System.out.println("File deleted successfully !");
+                } else {
+                    System.out.println("File delete operation failed !");
+                }
+            } catch (Exception e) {
+                e.printStackTrace();
             }
-        } catch (Exception e){
-            e.printStackTrace();
+
+            System.out.print("\n> ");
+            command = scan.nextLine();
         }
 
 
