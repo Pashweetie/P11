@@ -147,7 +147,7 @@ public class Lexer {
                     }
                     else if ( sym == '.' ) {
                         data += (char) sym;
-                        state = 3;
+                        state = 9;
                     }
                     else {// done with number token
                         putBackSymbol( sym );
@@ -163,7 +163,7 @@ public class Lexer {
                     }
                     else if (sym=='.'){
                         data += (char)sym;
-                        state = 4;
+                        state = 6;
                     }
                     else {// done with number token
                         putBackSymbol( sym );
@@ -177,6 +177,26 @@ public class Lexer {
                     }
                     else {
                         state = 5;
+                    }
+                }
+
+                else if ( state == 6 ) {
+                    if (digit(sym)){
+                        data += (char)sym;
+                        state = 6;
+                    } else{
+                        putBackSymbol(sym);
+                        done = true;
+                    }
+                }
+
+                else if ( state == 9 ) {
+                    if ( digit(sym)){
+                        data += (char)sym;
+                        state = 9;
+                    } else{
+                        putBackSymbol(sym);
+                        done = true;
                     }
                 }
             }while( !done );
@@ -212,6 +232,12 @@ public class Lexer {
             if ( state == 5 ) {
                 return new Token("COMMENT",data);
             }
+            else if ( state == 6 ) {
+                return new Token("DECIMAL NUMBER", data);
+            }
+            else if ( state == 7 ) {
+                return new Token("eof", data);
+            }
             else if ( state == 8 ) {
                 if(data.equals("(")){
                     return new Token ("LPAREN", data);
@@ -219,9 +245,10 @@ public class Lexer {
                     return new Token ("RPAREN", data);
                 }
             }
-            else if ( state == 7 ) {
-                return new Token( "eof", data );
-            }else {// Lexer error
+            else if ( state == 9 ) {
+                return new Token("NEGATIVE DECIMAL NUMBER", "-" + data);
+            }
+            else {// Lexer error
                 error("somehow Lexer FA halted in bad state " + state );
                 return null;
             }
