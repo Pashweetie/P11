@@ -147,7 +147,7 @@ public class Lexer {
                     }
                     else if ( sym == '.' ) {
                         data += (char) sym;
-                        state = 9;
+                        state = 3;
                     }
                     else {// done with number token
                         putBackSymbol( sym );
@@ -163,7 +163,7 @@ public class Lexer {
                     }
                     else if (sym=='.'){
                         data += (char)sym;
-                        state = 10;
+                        state = 4;
                     }
                     else {// done with number token
                         putBackSymbol( sym );
@@ -204,19 +204,13 @@ public class Lexer {
                 }
             }
             if(state == 3){
-                return new Token("NEGATIVE NUMBER",data);
+                return new Token("NEGATIVE NUMBER","-" + data);
             }
             if(state == 4){
                 return new Token("NUMBER",data);
             }
             if ( state == 5 ) {
                 return new Token("COMMENT",data);
-            }
-            else if ( state==9 ) {
-                return new Token( "NEGATIVE DECIMAL NUMBER", data );
-            }
-            else if ( state == 10 ) {
-                return new Token( "DECIMAL NUMBER", data );
             }
             else if ( state == 8 ) {
                 if(data.equals("(")){
