@@ -27,7 +27,7 @@ public class Node {
 
     /** built in functions */
     // bif0 = funcs with no params
-    private final static String[] bif0 = {"read", "nl", "quit"};
+    private final static String[] bif0 = {"read", "nl"};
     // bif1 = funcs with one param
     private final static String[] bif1 = {"first", "rest", "null", "num", "list",
             "write", "quote"};
@@ -193,7 +193,6 @@ public class Node {
         else if(kind.equals("expr")){
             System.out.println("Evaluating expression...");
             if(!info.equals("")){
-                System.out.println("info: " + info + " parsed: " + Double.parseDouble(info));
                 return new Item(Double.parseDouble(info), null);
             } else{
                 ans = first.evaluate();
@@ -204,7 +203,17 @@ public class Node {
             System.out.println("Evaluating list...");
             if(!info.equals("")){
                 if(member(info, bif0)){
-                    // no args
+                    switch (info) {
+                        case "read":
+                            Scanner s = new Scanner(System.in);
+                            System.out.println("Enter a num: ");
+                            System.out.print("> ");
+
+                            String num = s.nextLine();
+                            System.out.println(Double.parseDouble(num));
+                        case "nl":
+                            System.out.print("\n> ");
+                    }
                 } else if(member(info, bif1)){
                     arg1 = first.evaluate();
                 } else if(member(info, bif2)){
@@ -251,9 +260,6 @@ public class Node {
                         case "or":
                             if(arg1.getNum() > 0 || arg2.getNum() > 0) return new Item(1, null);
                             else return new Item(0, null);
-                        default:
-                            System.out.println("Case not yet created for: " + info);
-                            break;
                     }
                 }
             } else{

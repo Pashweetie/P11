@@ -34,6 +34,7 @@ public class Parser {
               lex.putBackToken(token);
               return parseList();
           }
+          // need to handle where a list goes
           error("if type isnt name or defs this isn't a valid input/file");
           return new Node(token);
     }
@@ -220,11 +221,16 @@ public class Parser {
 
         // If there is no rparen, there are more items
         if(!token.isKind("RPAREN")){
+
+            // stops infinite loop, but isn't the answer
+            if(token.isKind("eof")){
+                return new Node("null", null, null, null);
+            }
             lex.putBackToken(token);
             Node second = parseItems();
             return new Node("items", first, second, null);
         }
-
+        // check for eof here?
         lex.putBackToken(token);
         return new Node("items", first, null, null);
     }

@@ -25,7 +25,7 @@ public class Corgi {
         String command = scan.nextLine();
 
         // REPL bash
-        while(!command.equals("exit")) {
+        while(!command.equals("(quit)")) {
             // Objects relating to REPL
             Lexer inputLex = new Lexer(command);
             Parser inputParser = new Parser(inputLex, fileParser);
@@ -39,8 +39,10 @@ public class Corgi {
             Item ans = root.evaluate();
 
             // return the answer
-            if (ans.getList() == null) System.out.println(command + " = " + ans.getNum());
-            else System.out.println(command + " = " + ans.getList());
+            if(ans != null) {
+                if (ans.getList() == null) System.out.println(command + " = " + ans.getNum());
+                else System.out.println(command + " = " + ans.getList());
+            }
 
             // try deleting repl.txt
             try {
@@ -57,9 +59,6 @@ public class Corgi {
 
             System.out.print("\n> ");
             command = scan.nextLine();
-        }
-
-
+        }// REPL bash
     }// main
-
 }
