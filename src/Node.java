@@ -221,8 +221,9 @@ public class Node {
                     // Since list can only possess one "items" node, must create
                     // this special case
                     if(first.getKind().equals("items")) {
-                        arg1 = first.first.evaluate();
-                        arg2 = first.second.evaluate();
+                        Item items = first.evaluate();
+                        arg1 = items.getList().get(0);
+                        arg2 = items.getList().get(1);
                     }
                     // For lists and functions
                     else{
@@ -263,14 +264,24 @@ public class Node {
                     }
                 }
             } else{
-                // just a list
+                // contains items, so just evaluate to get item
+                return first.evaluate();
             }
         }
         else{ // items
-            // an item has to be evaluated
-            // must evaluate for an item that has an expression and an item
+            List<Item> itemList = new ArrayList<>();
+            // if just first, return that item
+            // if first and second, add them to a list, then
+            // return item with list
             System.out.println("Evaluating items...");
-            return first.evaluate();
+            if (first != null && second == null){
+                return first.evaluate();
+            } else{
+                itemList.add(first.evaluate());
+                // second item is like next in a linkedlist
+                itemList.add(second.evaluate());
+                return new Item(0, itemList);
+            }
         }
         return ans;
     }

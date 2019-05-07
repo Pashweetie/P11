@@ -1,3 +1,2 @@
 (minus 13 (plus (minus 12 2) 2))
-    * results in infinite item parsing
-    * trace this through the parser
+    * CASE FIXED: don't forget to put back tokens!!

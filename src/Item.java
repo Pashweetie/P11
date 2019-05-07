@@ -2,9 +2,9 @@ import java.util.List;
 
 public class Item {
     private double num;
-    private List<Double> list;
+    private List<Item> list;
 
-    public Item(double n, List<Double> li){
+    public Item(double n, List<Item> li){
         this.num = n;
         this.list = li;
     }
@@ -12,5 +12,5 @@ public class Item {
     public double getNum(){
         return this.num;
     }
-    public List<Double> getList() { return this.list; }
+    public List<Item> getList() { return this.list; }
 }
