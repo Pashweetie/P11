@@ -24,8 +24,8 @@ public class Lexer {
          */
         try{
             // Not doing anything with this yet?
-            BufferedReader defFile = new BufferedReader(new FileReader( command ));
-            defFile.close();
+            input = new BufferedReader(new FileReader( command ));
+            // close defFile in Corgi using closeStream()
         } catch(Exception e){
             String replFileName = "files/repl.txt";
             String fileFolderName = "files/";

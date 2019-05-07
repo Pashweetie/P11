@@ -1,4 +1,5 @@
 import java.io.File;
+import java.util.List;
 import java.util.Scanner;
 
 public class Corgi {
@@ -19,6 +20,7 @@ public class Corgi {
         Parser fileParser = new Parser(fileLex,null );
         Scanner scan = new Scanner(System.in);
         Node root2 = fileParser.parseProgram();
+        fileLex.closeStream();
 
         System.out.println("\nPlease input a command below: ");
         System.out.print("\n> ");
@@ -29,9 +31,9 @@ public class Corgi {
             // Objects relating to REPL
             Lexer inputLex = new Lexer(command);
             Parser inputParser = new Parser(inputLex, fileParser);
-
             // root node for REPL
             Node root = inputParser.parseProgram();
+            List<Node> defs = inputParser.getDefs(); // will this work?
 
             // display parse tree for debugging/testing:
             //TreeViewer viewer = new TreeViewer("Parse Tree", 0, 0, 800, 500, root);

@@ -25,10 +25,11 @@ public class Parser {
             Node first = parseName();
             return new Node("program",first,null,null);
           }
-          else if(token.isKind("defs")){
-            Node first = parseDefs();
-            lex.putBackToken(token);
-            return new Node("program",first,null,null);
+          else if(token.getDetails().equals("define") && token.isKind("KEYWORD")){
+              System.out.println("Parsing define...");
+              lex.putBackToken(token);
+              Node first = parseDefs();
+              return new Node("program", first, null, null);
           }
           else if(token.isKind("KEYWORD")){
               System.out.println("Parsing list...");
@@ -59,12 +60,11 @@ public class Parser {
         System.out.println("-----> parsing <defs>:");
         Node first = parseDef();
         Token token = lex.getNextToken();
-        System.out.println("does this even happen?");
         if ( token.isKind("eof") ){
             return new Node("defs", first, null, null);
         }
         else {
-            lex.putBackToken(token);
+            errorCheck(token, "LPAREN");
             Node second = parseDefs();
             return new Node("defs", first, second, null);
         }
@@ -74,11 +74,8 @@ public class Parser {
         Node def1;
         System.out.println("-----> parsing <def>:");
 
-        Token token = lex.getNextToken();
-        errorCheck(token, "LPAREN", "(");
-
         // needs to check for define specifically
-        token = lex.getNextToken();
+        Token token = lex.getNextToken();
         errorCheck(token, "KEYWORD", "define");
 
         token = lex.getNextToken();
@@ -229,7 +226,6 @@ public class Parser {
 
         // If there is no rparen, there are more items
         if(!token.isKind("RPAREN")){
-            System.out.println("here");
             lex.putBackToken(token);
             Node second = parseItems();
 
