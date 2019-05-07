@@ -24,8 +24,9 @@ public class Lexer {
          */
         try{
             // Not doing anything with this yet?
-            BufferedReader defFile = new BufferedReader(new FileReader( command ));
-            defFile.close();
+            BufferedReader input = new BufferedReader(new FileReader( command ));
+            System.out.println("Hitting try block with file name:"+command);
+            input.close();
         } catch(Exception e){
             String replFileName = "files/repl.txt";
             String fileFolderName = "files/";
@@ -89,15 +90,18 @@ public class Lexer {
                 if ( state == 0 ) {
                     if ( sym == 9 || sym == 10 || sym == 13 ||
                             sym == 32 ) {// whitespace
+                              System.out.println("Lexer enters state 0, whitespace analysis");
                         state = 0;
                     }
                     else if ( letter(sym) ) {// any letter (not just lowercase)
                         data += (char) sym;
+                        System.out.println("Lexer enters state 1, letter analysis");
                         state = 1;
                     }
                     else if ( digit( sym ) ) {
                         data += (char) sym;
                         state = 4;
+                        System.out.println("Lexer enters state 4,digit analysis");
                     }
                     else if ( sym == '-'){
                         state = 2;
@@ -110,6 +114,7 @@ public class Lexer {
                         data += (char) sym;
                         state = 8;
                         done = true;
+                        System.out.println("Lexer enters state 8, Parens");
                     }
                     else if ( sym == -1 ) {// end of file
                         state = 7;

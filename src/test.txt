@@ -1,3 +1,4 @@
+
 (define (ave x)
    (div (sum x) (len x))
 )
