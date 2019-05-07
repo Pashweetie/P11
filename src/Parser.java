@@ -5,6 +5,7 @@ public class Parser {
     private Lexer lex;
     private Parser parsed;
     private ArrayList<Node> defs = new ArrayList<>();
+    int rParenCount = 0;
 
     public Parser( Lexer lexer, Parser parser ) {
             lex = lexer;
@@ -152,7 +153,6 @@ public class Parser {
         System.out.println("-----> parsing <list>:");
 
         Token token = lex.getNextToken();
-
         // empty list
         if ( token.isKind("RPAREN") ) {
             return new Node("list", null, null, null);
@@ -177,28 +177,36 @@ public class Parser {
                     Node second = parseList();
                     token = lex.getNextToken();
                     errorCheck(token, "RPAREN"); // close greater list
+                    rParenCount++;
+                    System.out.println("count: " + rParenCount);
                     return new Node("list", funcType, first, second, null);
                 }
                 // if next item is just a number
                 else if(!token.isKind("RPAREN")){
+                    lex.putBackToken(token);
                     Node second = parseItems();
                     token = lex.getNextToken();
                     errorCheck(token, "RPAREN");
+                    rParenCount++;
+                    System.out.println("count: " + rParenCount);
                     return new Node("list", funcType, first, second, null);
                 }
                 // if there is no next item
                 else{
                     errorCheck(token, "RPAREN");
+                    rParenCount++;
+                    System.out.println("count: " + rParenCount);
                     return new Node("list", funcType, first, null, null);
                 }
             }
-            lex.putBackToken(token);
-
             // only one node here, since the items of a function call are treated like a list
             // A list will be treated exactly the same
+            lex.putBackToken(token);
             Node first = parseItems();
             token = lex.getNextToken();
             errorCheck(token, "RPAREN");
+            rParenCount++;
+            System.out.println("count: " + rParenCount);
             return new Node("list", funcType, first, null, null);
         }
         // just a list
@@ -221,16 +229,13 @@ public class Parser {
 
         // If there is no rparen, there are more items
         if(!token.isKind("RPAREN")){
-
-            // stops infinite loop, but isn't the answer
-            if(token.isKind("eof")){
-                return new Node("null", null, null, null);
-            }
+            System.out.println("here");
             lex.putBackToken(token);
             Node second = parseItems();
+
             return new Node("items", first, second, null);
         }
-        // check for eof here?
+
         lex.putBackToken(token);
         return new Node("items", first, null, null);
     }
