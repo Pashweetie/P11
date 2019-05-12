@@ -18,7 +18,9 @@ public class Node {
     // the actual identifier for an I
 
     // references to children in the parse tree
-    private Node first, second, third;
+    private Node first, second;
+
+    private StackFrame stack;
 
     // stack of memories for all pending calls
     private static ArrayList<MemTable> memStack = new ArrayList<>();
@@ -41,24 +43,34 @@ public class Node {
     private static Scanner keys = new Scanner(System.in);
 
     // construct a common node with no info specified
-    public Node(String k, Node one, Node two, Node three) {
+    public Node(String k, Node one, Node two) {
         kind = k;
         info = "";
         first = one;
         second = two;
-        third = three;
+        id = count;
+        count++;
+        System.out.println(this);
+    }
+
+    // construct a def node with stack frame for params
+    public Node(String k, String inf, Node one, Node two, StackFrame stack){
+        kind = k;
+        info = inf;
+        first = one;
+        second = two;
+        this.stack = stack;
         id = count;
         count++;
         System.out.println(this);
     }
 
     // construct a node with specified info
-    public Node(String k, String inf, Node one, Node two, Node three) {
+    public Node(String k, String inf, Node one, Node two) {
         kind = k;
         info = inf;
         first = one;
         second = two;
-        third = three;
         id = count;
         count++;
         System.out.println(this);
@@ -70,7 +82,6 @@ public class Node {
         info = token.getDetails();
         first = null;
         second = null;
-        third = null;
         id = count;
         count++;
         System.out.println(this);
@@ -101,7 +112,6 @@ public class Node {
         int count = 0;
         if (first != null) count++;
         if (second != null) count++;
-        if (third != null) count++;
         Node[] children = new Node[count];
         int k = 0;
         if (first != null) {
@@ -110,10 +120,6 @@ public class Node {
         }
         if (second != null) {
             children[k] = second;
-            k++;
-        }
-        if (third != null) {
-            children[k] = third;
             k++;
         }
 
@@ -173,11 +179,14 @@ public class Node {
         System.exit(1);
     }
 
-    // needs to return Item objects
-    public Item evaluate() {
-        Item arg1, arg2;
+    // needs to return Value objects
+    public Value evaluate() {
+        Value arg1, arg2;
 
-        Item ans = null;
+        Value ZERO = new Value( 0 );
+        Value ONE = new Value( 1 );
+
+        Value ans = null;
         if(kind.equals("defs")){
             ans = first.evaluate();
             System.out.println("Evaluating defs..." + ans);
@@ -193,7 +202,7 @@ public class Node {
         else if(kind.equals("expr")){
             System.out.println("Evaluating expression...");
             if(!info.equals("")){
-                return new Item(Double.parseDouble(info), null);
+                return new Value(Double.parseDouble(info));
             } else{
                 ans = first.evaluate();
             }
@@ -216,14 +225,38 @@ public class Node {
                     }
                 } else if(member(info, bif1)){
                     arg1 = first.evaluate();
+                    switch (info) {
+                        case "not":
+                            if(arg1.getNumber() == 0) return ONE;
+                            else return ZERO;
+                        case "first":
+                            if(arg1.isEmpty()) System.out.println("Error: empty list " + arg1.toString());
+                            // might have to return something here, not sure yet though
+                            else return arg1.first();
+                        case "rest":
+                            return arg1.rest();
+                        case "null":
+                            if(arg1.isEmpty()) return ONE;
+                            else return ZERO;
+                        case "num":
+                            if(arg1.isNumber()) return ONE;
+                            else return ZERO;
+                        case "list":
+                            if(!arg1.isNull()) return ONE;
+                            else return ZERO;
+                        case "write":
+                            System.out.println(arg1.toString());
+                        case "quote":
+                            return arg1;
+                    }
                 } else if(member(info, bif2)){
 
                     // Since list can only possess one "items" node, must create
                     // this special case
                     if(first.getKind().equals("items")) {
-                        Item items = first.evaluate();
-                        arg1 = items.getList().get(0);
-                        arg2 = items.getList().get(1);
+                        Value items = first.evaluate();
+                        arg1 = items.first();
+                        arg2 = items.rest().first();
                     }
                     // For lists and functions
                     else{
@@ -232,35 +265,40 @@ public class Node {
                     }
                     switch (info) {
                         case "plus":
-                            double sum = arg1.getNum() + arg2.getNum();
-                            return new Item(sum, null);
+                            double sum = arg1.getNumber() + arg2.getNumber();
+                            return new Value(sum);
                         case "minus":
-                            double min = arg1.getNum() - arg2.getNum();
-                            return new Item(min, null);
+                            double min = arg1.getNumber() - arg2.getNumber();
+                            return new Value(min);
                         case "times":
-                            double mul = arg1.getNum() * arg2.getNum();
-                            return new Item(mul, null);
+                            double mul = arg1.getNumber() * arg2.getNumber();
+                            return new Value(mul);
                         case "div":
-                            double div = arg1.getNum() / arg2.getNum();
-                            return new Item(div, null);
+                            double div = arg1.getNumber() / arg2.getNumber();
+                            return new Value(div);
                         case "lt":
-                            if(arg1.getNum() < arg2.getNum()) return new Item(1, null);
-                            else return new Item(0, null);
+                            if(arg1.getNumber() < arg2.getNumber()) return ONE;
+                            else return ZERO;
                         case "le":
-                            if(arg1.getNum() <= arg2.getNum()) return new Item(1, null);
-                            else return new Item(0, null);
+                            if(arg1.getNumber() <= arg2.getNumber()) return ONE;
+                            else return ZERO;
                         case "eq":
-                            if(arg1.getNum() == arg2.getNum()) return new Item(1, null);
-                            else return new Item(0, null);
+                            if(arg1.getNumber() == arg2.getNumber()) return ONE;
+                            else return ZERO;
                         case "ne":
-                            if(arg1.getNum() != arg2.getNum()) return new Item(1, null);
-                            else return new Item(0, null);
+                            if(arg1.getNumber() != arg2.getNumber()) return ONE;
+                            else return ZERO;
                         case "and":
-                            if(arg1.getNum() > 0 && arg2.getNum() > 0) return new Item(1, null);
-                            else return new Item(0, null);
+                            if(arg1.getNumber() > 0 && arg2.getNumber() > 0) return ONE;
+                            else return ZERO;
                         case "or":
-                            if(arg1.getNum() > 0 || arg2.getNum() > 0) return new Item(1, null);
-                            else return new Item(0, null);
+                            if(arg1.getNumber() > 0 || arg2.getNumber() > 0) return ONE;
+                            else return ZERO;
+                        case "ins":
+                            Value newList = new Value();
+                            newList.insert(arg1);
+                            newList.insert(arg2);
+                            return newList;
                     }
                 }
             } else{
@@ -269,18 +307,14 @@ public class Node {
             }
         }
         else{ // items
-            List<Item> itemList = new ArrayList<>();
-            // if just first, return that item
-            // if first and second, add them to a list, then
-            // return item with list
             System.out.println("Evaluating items...");
-            if (first != null && second == null){
-                return first.evaluate();
+            Value items = new Value();
+            items.insert(first.evaluate());
+            if (second == null){
+                return items;
             } else{
-                itemList.add(first.evaluate());
-                // second item is like next in a linkedlist
-                itemList.add(second.evaluate());
-                return new Item(0, itemList);
+                items.insert(second.evaluate());
+                return items;
             }
         }
         return ans;
@@ -329,7 +363,7 @@ public class Node {
             while (pnode != null && anode != null) {
                 // store argument value under parameter name
                 newTable.store(pnode.first.info,
-                        anode.first.evaluate().getNum());
+                        anode.first.evaluate().getNumber());
                 // move ahead
                 pnode = pnode.second;
                 anode = anode.second;

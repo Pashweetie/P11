@@ -38,13 +38,10 @@ public class Corgi {
             // display parse tree for debugging/testing:
             //TreeViewer viewer = new TreeViewer("Parse Tree", 0, 0, 800, 500, root);
 
-            Item ans = root.evaluate();
+            Value ans = root.evaluate();
 
             // return the answer
-            if(ans != null) {
-                if (ans.getList() == null) System.out.println(command + " = " + ans.getNum());
-                else System.out.println(command + " = " + ans.getList());
-            }
+            System.out.println(ans.toString());
 
             // try deleting repl.txt
             try {

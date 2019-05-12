@@ -16,20 +16,20 @@ public class Parser {
           Token token = lex.getNextToken();
           if(token.isKind("eof")){
               System.out.println("hitting an eof");
-            return new Node("Null","null",null,null,null);
+            return new Node("Null","null",null,null);
           }
           errorCheck(token, "LPAREN", "(");
           token = lex.getNextToken();
           if(token.isKind("NAME")){
               lex.putBackToken(token);
             Node first = parseName();
-            return new Node("program",first,null,null);
+            return new Node("program",first,null);
           }
           else if(token.getDetails().equals("define") && token.isKind("KEYWORD")){
               System.out.println("Parsing define...");
               lex.putBackToken(token);
               Node first = parseDefs();
-              return new Node("program", first, null, null);
+              return new Node("program", first, null);
           }
           else if(token.isKind("KEYWORD")){
               System.out.println("Parsing list...");
@@ -43,7 +43,7 @@ public class Parser {
 
     public Node parseName(){
         Token token = lex.getNextToken();
-        Node thisNode = new Node("NAME",token.getDetails(),null,null,null);
+        Node thisNode = new Node("NAME",token.getDetails(),null,null);
         Node first = null;
         if(parsed.defs.contains(thisNode)){
             first = findNode(thisNode);
@@ -52,8 +52,8 @@ public class Parser {
             System.exit(1);
         }
 
-        if(first != null) return new Node("NAME",token.getDetails(),first,null,null);
-        else return new Node("NAME",token.getDetails(),null,null,null);
+        if(first != null) return new Node("NAME",token.getDetails(),first,null);
+        else return new Node("NAME",token.getDetails(),null,null);
     }
 
     public Node parseDefs() {
@@ -61,12 +61,12 @@ public class Parser {
         Node first = parseDef();
         Token token = lex.getNextToken();
         if ( token.isKind("eof") ){
-            return new Node("defs", first, null, null);
+            return new Node("defs", first, null);
         }
         else {
             errorCheck(token, "LPAREN");
             Node second = parseDefs();
-            return new Node("defs", first, second, null);
+            return new Node("defs", first, second);
         }
     }
 
@@ -90,7 +90,7 @@ public class Parser {
             Node first = parseExpr();
             token = lex.getNextToken();
             errorCheck(token, "RPAREN", ")");
-            def1 = new Node("def",name.getDetails(),first, null,null);
+            def1 = new Node("def",name.getDetails(),first, null);
         }
         // if params found
         else {
@@ -101,7 +101,7 @@ public class Parser {
             Node second = parseExpr();
             token = lex.getNextToken();
             errorCheck(token, "RPAREN", ")");
-            def1 = new Node("def",name.getDetails(),first, second,null);
+            def1 = new Node("def",name.getDetails(),first, second);
         }
 
         defs.add(def1);
@@ -118,14 +118,12 @@ public class Parser {
 
         if ( token.isKind("RPAREN") ) {
             lex.putBackToken( token );
-            return new Node("params", name.getDetails(),
-                    null, null, null);
+            return new Node("params", name.getDetails(), null, null);
         }
         else{
             lex.putBackToken( token );
             Node first = parseParams();
-            return new Node("params", name.getDetails(),
-                    first, null, null);
+            return new Node("params", name.getDetails(), first, null);
         }
     }
 
@@ -137,12 +135,11 @@ public class Parser {
         // is a list
         if ( token.isKind("LPAREN") ) {
             Node first = parseList();
-            return new Node("expr", first, null, null);
+            return new Node("expr", first, null);
         }
         // is a num
         else{
-            return new Node("expr", token.getDetails(),
-                    null, null, null);
+            return new Node("expr", token.getDetails(), null, null);
         }
     }
 
@@ -161,7 +158,7 @@ public class Parser {
 
             // Some functions/lists don't have any items, so handle these here
             if(token.isKind("RPAREN")){
-                return new Node("list", funcType, null, null, null);
+                return new Node("list", funcType, null, null);
             }
             // encountered a nested list or function call
             else if(token.isKind("LPAREN")){
@@ -176,7 +173,7 @@ public class Parser {
                     errorCheck(token, "RPAREN"); // close greater list
                     rParenCount++;
                     System.out.println("count: " + rParenCount);
-                    return new Node("list", funcType, first, second, null);
+                    return new Node("list", funcType, first, second);
                 }
                 // if next item is just a number
                 else if(!token.isKind("RPAREN")){
@@ -186,14 +183,14 @@ public class Parser {
                     errorCheck(token, "RPAREN");
                     rParenCount++;
                     System.out.println("count: " + rParenCount);
-                    return new Node("list", funcType, first, second, null);
+                    return new Node("list", funcType, first, second);
                 }
                 // if there is no next item
                 else{
                     errorCheck(token, "RPAREN");
                     rParenCount++;
                     System.out.println("count: " + rParenCount);
-                    return new Node("list", funcType, first, null, null);
+                    return new Node("list", funcType, first, null);
                 }
             }
             // only one node here, since the items of a function call are treated like a list
@@ -204,7 +201,7 @@ public class Parser {
             errorCheck(token, "RPAREN");
             rParenCount++;
             System.out.println("count: " + rParenCount);
-            return new Node("list", funcType, first, null, null);
+            return new Node("list", funcType, first, null);
         }
         // just a list
         else {
@@ -212,12 +209,12 @@ public class Parser {
             Node first = parseItems();
             token = lex.getNextToken();
             errorCheck(token, "RPAREN", ")");
-            return new Node("list", first, null, null);
+            return new Node("list", first, null);
         }
     }
 
     public Node parseItems(){
-        // wait, an Item can be an expr, or an expr followed by more items
+        // wait, an Value can be an expr, or an expr followed by more items
         System.out.println("-----> parsing <items>:");
 
         // The required expression, all items must have at least one
@@ -229,11 +226,11 @@ public class Parser {
             lex.putBackToken(token);
             Node second = parseItems();
 
-            return new Node("items", first, second, null);
+            return new Node("items", first, second);
         }
 
         lex.putBackToken(token);
-        return new Node("items", first, null, null);
+        return new Node("items", first, null);
     }
 
     private void error(String message){
