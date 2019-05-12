@@ -19,7 +19,6 @@
 import java.util.LinkedList;
 
 public class Value {
-    
 
     private double number;
     private LinkedList<Value> list;
@@ -66,7 +65,7 @@ public class Value {
         else {// is a list
             String s = "(";
             for (int k=0; k<list.size(); k++) {
-                s += list.get(k).toString() + " ";
+               s += list.get(k).toString() + " ";
             }
             s += ")";
             return s;

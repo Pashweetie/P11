@@ -149,7 +149,7 @@ public class Parser {
         Token token = lex.getNextToken();
         // empty list
         if ( token.isKind("RPAREN") ) {
-            return new Node("list", null, null, null);
+            return new Node("list", null, null);
         }
         // function call
         else if ( token.isKind("NAME") || token.isKind("KEYWORD")){

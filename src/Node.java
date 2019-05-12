@@ -189,7 +189,7 @@ public class Node {
         Value ans = null;
         if(kind.equals("defs")){
             ans = first.evaluate();
-            System.out.println("Evaluating defs..." + ans);
+            //System.out.println("Evaluating defs..." + ans);
         }
         else if(kind.equals("def")){
             System.out.println("Evaluating def...");
@@ -200,16 +200,16 @@ public class Node {
             // Need to pass names to funciton
         }
         else if(kind.equals("expr")){
-            System.out.println("Evaluating expression...");
+            //System.out.println("Evaluating expression...");
             if(!info.equals("")){
                 return new Value(Double.parseDouble(info));
             } else{
-                ans = first.evaluate();
+                return first.evaluate();
             }
 
         }
         else if(kind.equals("list")){
-            System.out.println("Evaluating list...");
+            //System.out.println("Evaluating list...");
             if(!info.equals("")){
                 if(member(info, bif0)){
                     switch (info) {
@@ -245,7 +245,8 @@ public class Node {
                             if(!arg1.isNull()) return ONE;
                             else return ZERO;
                         case "write":
-                            System.out.println(arg1.toString());
+                            System.out.println(arg1 + " ");
+                            return arg1;
                         case "quote":
                             return arg1;
                     }
@@ -255,8 +256,8 @@ public class Node {
                     // this special case
                     if(first.getKind().equals("items")) {
                         Value items = first.evaluate();
-                        arg1 = items.first();
-                        arg2 = items.rest().first();
+                            arg1 = items.first();
+                            arg2 = items.rest().first();
                     }
                     // For lists and functions
                     else{
@@ -266,34 +267,50 @@ public class Node {
                     switch (info) {
                         case "plus":
                             double sum = arg1.getNumber() + arg2.getNumber();
-                            return new Value(sum);
+                            ans = new Value(sum);
+                            return ans;
                         case "minus":
                             double min = arg1.getNumber() - arg2.getNumber();
-                            return new Value(min);
+                            ans = new Value(min);
+                            return ans;
                         case "times":
                             double mul = arg1.getNumber() * arg2.getNumber();
-                            return new Value(mul);
+                            ans = new Value(mul);
+                            return ans;
                         case "div":
                             double div = arg1.getNumber() / arg2.getNumber();
-                            return new Value(div);
+                            ans = new Value(div);
+                            return ans;
                         case "lt":
-                            if(arg1.getNumber() < arg2.getNumber()) return ONE;
-                            else return ZERO;
+                            if(arg1.getNumber() < arg2.getNumber())
+                                ans = ONE;
+                            else ans = ZERO;
+                            return ans;
+
                         case "le":
-                            if(arg1.getNumber() <= arg2.getNumber()) return ONE;
-                            else return ZERO;
+                            if(arg1.getNumber() <= arg2.getNumber()) ans = ONE;
+                            else ans = ZERO;
+                            return ans;
                         case "eq":
-                            if(arg1.getNumber() == arg2.getNumber()) return ONE;
-                            else return ZERO;
+                            if(arg1.getNumber() == arg2.getNumber())
+                                ans = ONE;
+                            else ans = ZERO;
+                            return ans;
                         case "ne":
-                            if(arg1.getNumber() != arg2.getNumber()) return ONE;
-                            else return ZERO;
+                            if(arg1.getNumber() != arg2.getNumber())
+                                ans = ONE;
+                            else ans = ZERO;
+                            return ans;
                         case "and":
-                            if(arg1.getNumber() > 0 && arg2.getNumber() > 0) return ONE;
-                            else return ZERO;
+                            if(arg1.getNumber() > 0 && arg2.getNumber() > 0)
+                                ans = ONE;
+                            else ans = ZERO;
+                            return ans;
                         case "or":
-                            if(arg1.getNumber() > 0 || arg2.getNumber() > 0) return ONE;
-                            else return ZERO;
+                            if(arg1.getNumber() > 0 || arg2.getNumber() > 0)
+                                ans = ONE;
+                            else ans = ZERO;
+                            return ans;
                         case "ins":
                             Value newList = new Value();
                             newList.insert(arg1);
@@ -302,18 +319,23 @@ public class Node {
                     }
                 }
             } else{
-                // contains items, so just evaluate to get item
+                // empty list
+                if(first == null){
+                    return new Value();
+                }
                 return first.evaluate();
             }
         }
         else{ // items
-            System.out.println("Evaluating items...");
+            //System.out.println("Evaluating items...");
             Value items = new Value();
-            items.insert(first.evaluate());
+
             if (second == null){
+                items = items.insert(first.evaluate());
                 return items;
             } else{
-                items.insert(second.evaluate());
+                items = second.evaluate();
+                items = items.insert(first.evaluate());
                 return items;
             }
         }
