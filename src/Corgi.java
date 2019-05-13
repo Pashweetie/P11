@@ -1,4 +1,5 @@
 import java.io.File;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Scanner;
 
@@ -22,6 +23,10 @@ public class Corgi {
         Node root2 = fileParser.parseProgram();
         fileLex.closeStream();
 
+        ArrayList<Node> defs = fileParser.getDefs(); // will this work?
+        ArrayList<String> defNames = fileParser.getDefNames();
+
+
         System.out.println("\nPlease input a command below: ");
         System.out.print("\n> ");
         String command = scan.nextLine();
@@ -33,12 +38,11 @@ public class Corgi {
             Parser inputParser = new Parser(inputLex);
             // root node for REPL
             Node root = inputParser.parseProgram();
-            HashMap<String, Node> defs = inputParser.getDefs(); // will this work?
 
             // display parse tree for debugging/testing:
             //TreeViewer viewer = new TreeViewer("Parse Tree", 0, 0, 800, 500, root);
 
-            Value ans = root.evaluate(defs, null);
+            Value ans = root.evaluate(defs, defNames, null);
 
             // return the answer
             System.out.println(ans.toString());

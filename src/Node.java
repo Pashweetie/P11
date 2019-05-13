@@ -5,7 +5,6 @@
 
 import java.util.*;
 import java.awt.*;
-import java.util.List;
 
 public class Node {
 
@@ -170,28 +169,13 @@ public class Node {
     }// draw
 
     // needs to return Value objects
-    public Value evaluate(HashMap<String, Node> defsList, StackFrame params) {
+    public Value evaluate(ArrayList<Node> defsList, ArrayList<String> defNames, StackFrame params) {
         Value arg1, arg2;
 
         Value ZERO = new Value( 0 );
         Value ONE = new Value( 1 );
 
-        Value ans = null;
-        if(kind.equals("defs")){
-            ans = first.evaluate(defsList, null);
-            //System.out.println("Evaluating defs..." + ans);
-        }
-        else if(kind.equals("def")){
-            System.out.println("Evaluating def...");
-            if(first.getKind().equals("params")) {
-                params = first.passParams(); // evaluate the params
-                ans = second.evaluate(defsList, params);
-            } else{
-                ans = first.evaluate(defsList, null);
-            }
-            // Need to find a place to store custom defs
-        }
-        else if(kind.equals("name")){
+        if(kind.equals("name")){
             // retrieves value for name
             return params.retrieve(info);
         }
@@ -201,10 +185,11 @@ public class Node {
                 return new Value(Double.parseDouble(info));
             }
             else{
-                return first.evaluate(defsList, params);
+                return first.evaluate(defsList, defNames, params);
             }
         }
         else if(kind.equals("list")){
+            System.out.println("info: " + info);
             //System.out.println("Evaluating list...");
             if(!info.equals("")){
                 if(member(info, bif0)){
@@ -220,7 +205,7 @@ public class Node {
                             System.out.print("\n> ");
                     }
                 } else if(member(info, bif1)){
-                    arg1 = first.evaluate(defsList, params);
+                    arg1 = first.evaluate(defsList, defNames, params);
                     switch (info) {
                         case "not":
                             if(arg1.getNumber() == 0) return ONE;
@@ -251,71 +236,56 @@ public class Node {
                     // Since list can only possess one "items" node, must create
                     // this special case
                     if(first.getKind().equals("items")) {
-                        Value items = first.evaluate(defsList, params);
+                        Value items = first.evaluate(defsList, defNames, params);
                             arg1 = items.first();
                             arg2 = items.rest().first();
                     }
                     // For lists and functions
                     else{
-                        arg1 = first.evaluate(defsList, params);
-                        arg2 = second.evaluate(defsList, params);
+                        arg1 = first.evaluate(defsList, defNames, params);
+                        arg2 = second.evaluate(defsList, defNames, params);
                     }
                     switch (info) {
                         case "plus":
                             if(!arg2.isNumber()) arg2 = arg2.first();
                             double sum = arg1.getNumber() + arg2.getNumber();
-                            ans = new Value(sum);
-                            return ans;
+                            return new Value(sum);
                         case "minus":
                             if(!arg2.isNumber()) arg2 = arg2.first();
                             double min = arg1.getNumber() - arg2.getNumber();
-                            ans = new Value(min);
-                            return ans;
+                            return new Value(min);
                         case "times":
                             if(!arg2.isNumber()) arg2 = arg2.first();
                             double mul = arg1.getNumber() * arg2.getNumber();
-                            ans = new Value(mul);
-                            return ans;
+                            return new Value(mul);
                         case "div":
                             if(!arg2.isNumber()) arg2 = arg2.first();
                             double div = arg1.getNumber() / arg2.getNumber();
-                            ans = new Value(div);
-                            return ans;
+                            return new Value(div);
                         case "lt":
                             if(!arg2.isNumber()) arg2 = arg2.first();
-                            if(arg1.getNumber() < arg2.getNumber())
-                                ans = ONE;
-                            else ans = ZERO;
-                            return ans;
+                            if(arg1.getNumber() < arg2.getNumber()) return ONE;
+                            else return ZERO;
                         case "le":
                             if(!arg2.isNumber()) arg2 = arg2.first();
-                            if(arg1.getNumber() <= arg2.getNumber()) ans = ONE;
-                            else ans = ZERO;
-                            return ans;
+                            if(arg1.getNumber() <= arg2.getNumber()) return ONE;
+                            else return ZERO;
                         case "eq":
                             if(!arg2.isNumber()) arg2 = arg2.first();
-                            if(arg1.getNumber() == arg2.getNumber())
-                                ans = ONE;
-                            else ans = ZERO;
-                            return ans;
+                            if(arg1.getNumber() == arg2.getNumber()) return ONE;
+                            else return ZERO;
                         case "ne":
                             if(!arg2.isNumber()) arg2 = arg2.first();
-                            if(arg1.getNumber() != arg2.getNumber())
-                                ans = ONE;
-                            else ans = ZERO;
-                            return ans;
+                            if(arg1.getNumber() != arg2.getNumber()) return ONE;
+                            else return ZERO;
                         case "and":
                             if(!arg2.isNumber()) arg2 = arg2.first();
-                            if(arg1.getNumber() > 0 && arg2.getNumber() > 0)
-                                ans = ONE;
-                            else ans = ZERO;
-                            return ans;
+                            if(arg1.getNumber() > 0 && arg2.getNumber() > 0) return ONE;
+                            else return ZERO;
                         case "or":
                             if(!arg2.isNumber()) arg2 = arg2.first();
-                            if(arg1.getNumber() > 0 || arg2.getNumber() > 0)
-                                ans = ONE;
-                            else ans = ZERO;
-                            return ans;
+                            if(arg1.getNumber() > 0 || arg2.getNumber() > 0) return ONE;
+                            else return ZERO;
                         case "ins":
                             Value newList = new Value();
                             newList.insert(arg1);
@@ -323,17 +293,25 @@ public class Node {
                             return newList;
                     }
                 }
-            }
-            else if(defsList.containsKey(info)){
-                Node def = defsList.get(info);
-                return def.evaluate(defsList, null);
+                // Handles and locates user defined functions
+                else if(defNames.contains(info)){
+                    int index = defNames.indexOf(info);
+                    System.out.println("Evaluating user defined def...");
+                    Node def = defsList.get(index);
+                    if(def.first.getKind().equals("params")) {
+                        params = passParams(def, defsList, defNames, first, params); // evaluate the params passed
+                        return def.second.evaluate(defsList, defNames, params);
+                    } else{
+                        return def.first.evaluate(defsList, defNames,params);
+                    }
+                }
             }
             else{
                 // empty list
                 if(first == null){
                     return new Value();
                 }
-                return first.evaluate(defsList, params);
+                return first.evaluate(defsList, defNames, params);
             }
         }
         else{ // items
@@ -341,15 +319,15 @@ public class Node {
             Value items = new Value();
 
             if (second == null){
-                items = items.insert(first.evaluate(defsList, params));
+                items = items.insert(first.evaluate(defsList, defNames, params));
                 return items;
             } else{
-                items = second.evaluate(defsList, params);
-                items = items.insert(first.evaluate(defsList, params));
+                items = second.evaluate(defsList, defNames, params);
+                items = items.insert(first.evaluate(defsList, defNames, params));
                 return items;
             }
         }
-        return ans;
+        return null;
     }
 
     // return whether target is a member of array
@@ -362,9 +340,35 @@ public class Node {
         return false;
     }
 
-    private static StackFrame passParams(){
+    // Take params from the user and assign them to the appropriate names
+    private StackFrame passParams(Node def, ArrayList<Node> defsList, ArrayList<String> defNames,
+                                  Node userParams, StackFrame params){
+        StackFrame p = new StackFrame();
+        ArrayList<String> paramNames = new ArrayList<>();
 
-        return null;
+        // get user params as a list
+        Value userParamsList = userParams.evaluate(defsList, defNames, params);
+        Value f = userParamsList.first();
+        Value r = userParamsList.rest();
+
+        // get def param names
+        Node param = def.first;
+
+        while(param != null){
+            // extract all param names from original def
+            paramNames.add(param.getInfo());
+            param = param.first;
+        }
+
+        // add all names and values to StackFrame p
+        for(int i = 0; i < paramNames.size(); i++){
+            p.add(paramNames.get(i), f);
+            if(! r.isEmpty()) {
+                f = r.first();
+                r = r.rest();
+            }
+        }
+        return p;
     }
 
 }// Node

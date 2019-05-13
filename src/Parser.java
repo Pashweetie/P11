@@ -3,7 +3,8 @@ import java.io.*;
 public class Parser {
 
     private Lexer lex;
-    private HashMap<String, Node> defs = new HashMap<>();
+    private ArrayList<Node> defs = new ArrayList<>();
+    private ArrayList<String> defNames = new ArrayList<>();
     int rParenCount = 0;
 
     public Parser( Lexer lexer) {
@@ -24,7 +25,8 @@ public class Parser {
               Node first = parseDefs();
               return new Node("program", first, null);
           }
-          else if(token.isKind("KEYWORD")){
+          // Pre-defined or user-defined def
+          else if(token.isKind("KEYWORD") || token.isKind("NAME")){
               System.out.println("Parsing list...");
               lex.putBackToken(token);
               return parseList();
@@ -37,6 +39,7 @@ public class Parser {
     public Node parseDefs() {
         System.out.println("-----> parsing <defs>:");
         Node first = parseDef();
+
         Token token = lex.getNextToken();
         if ( token.isKind("eof") ){
             return new Node("defs", first, null);
@@ -49,7 +52,7 @@ public class Parser {
     }
 
     public Node parseDef(){
-        Node def1;
+        Node def;
         System.out.println("-----> parsing <def>:");
 
         // needs to check for define specifically
@@ -68,7 +71,7 @@ public class Parser {
             Node first = parseExpr();
             token = lex.getNextToken();
             errorCheck(token, "RPAREN", ")");
-            def1 = new Node("def",name.getDetails(),first, null);
+            def = new Node("def",name.getDetails(),first, null);
         }
         // if params found
         else {
@@ -79,11 +82,13 @@ public class Parser {
             Node second = parseExpr();
             token = lex.getNextToken();
             errorCheck(token, "RPAREN", ")");
-            def1 = new Node("def",name.getDetails(),first, second);
+            def = new Node("def",name.getDetails(),first, second);
         }
 
-        defs.put(def1.getInfo(), def1);
-        return def1;
+        // maybe go back to array list, since it works like a pointer?
+        defs.add(def);
+        defNames.add(def.getInfo());
+        return def;
     }
 
     public Node parseParams() {
@@ -252,8 +257,9 @@ public class Parser {
         }
     }
 
-    public HashMap<String, Node> getDefs(){
+    public ArrayList<Node> getDefs(){
         return defs;
     }
+    public ArrayList<String> getDefNames() { return defNames; }
 
 }

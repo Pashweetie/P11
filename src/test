@@ -2,6 +2,18 @@
    (div (sum x) (len x))
 )
 
+(define (sumMul x y)
+    (div (plus (varX x) (varY y)) (varX x))
+)
+
+(define (varX x)
+    x
+)
+
+(define (varY y)
+    y
+)
+
 (define (sum x)
    (if (null x)
        0
