@@ -77,12 +77,12 @@ public class Value {
     // first item in this
     public Value first() {
         if ( list==null ) {
-            System.out.println("Oops, this Value is a number");
+            System.out.println("First: Oops, this Value is a number");
             System.exit(1);
             return null;
         }
         else if ( list.size() == 0 ) {
-            System.out.println("Oops, this Value is an empty list");
+            System.out.println("First: Oops, this Value is an empty list");
             System.exit(1);
             return null;
         }
@@ -97,12 +97,10 @@ public class Value {
     // rest of this list
     public Value rest() {
         if ( list==null ) {
-            System.out.println("Oops, this Value is a number");
-            System.exit(1);
-            return null;
+            return new Value();
         }
         else if ( list.size() == 0 ) {
-            System.out.println("Oops, this Value is an empty list");
+            System.out.println("Rest: Oops, this Value is an empty list");
             System.exit(1);
             return null;
         }
@@ -120,7 +118,7 @@ public class Value {
     // be a list
     public Value insert( Value a ) {
         if ( list==null ) {
-            System.out.println("Oops, this Value is a number");
+            System.out.println("Insert: Oops, this Value is a number");
             System.exit(1);
             return null;
         }

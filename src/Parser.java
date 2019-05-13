@@ -2,7 +2,7 @@ import java.util.*;
 import java.io.*;
 public class Parser {
 
-    private Lexer lex;
+    private static Lexer lex;
     private ArrayList<Node> defs = new ArrayList<>();
     private ArrayList<String> defNames = new ArrayList<>();
     int rParenCount = 0;
@@ -143,6 +143,16 @@ public class Parser {
             String funcType = token.getDetails(); // will be empty string if it is just a list of items
             token = lex.getNextToken();
 
+            if(funcType.equals("if")){
+                lex.putBackToken(token);
+
+                Node first = parseExpr();
+                Node second = parseExpr();
+                Node third = parseExpr();
+                token = lex.getNextToken();
+                errorCheck(token, "RPAREN");
+                return new Node("if", funcType, first, second, third);
+            }
             // Some functions/lists don't have any items, so handle these here
             if(token.isKind("RPAREN")){
                 return new Node("list", funcType, null, null);
@@ -158,8 +168,8 @@ public class Parser {
                     Node second = parseList();
                     token = lex.getNextToken();
                     errorCheck(token, "RPAREN"); // close greater list
-                    rParenCount++;
-                    System.out.println("count: " + rParenCount);
+//                    rParenCount++;
+//                    System.out.println("count: " + rParenCount);
                     return new Node("list", funcType, first, second);
                 }
                 // if next item is just a number
@@ -168,15 +178,15 @@ public class Parser {
                     Node second = parseItems();
                     token = lex.getNextToken();
                     errorCheck(token, "RPAREN");
-                    rParenCount++;
-                    System.out.println("count: " + rParenCount);
+//                    rParenCount++;
+//                    System.out.println("count: " + rParenCount);
                     return new Node("list", funcType, first, second);
                 }
                 // if there is no next item
                 else{
                     errorCheck(token, "RPAREN");
-                    rParenCount++;
-                    System.out.println("count: " + rParenCount);
+//                    rParenCount++;
+//                    System.out.println("count: " + rParenCount);
                     return new Node("list", funcType, first, null);
                 }
             }
@@ -186,8 +196,8 @@ public class Parser {
             Node first = parseItems();
             token = lex.getNextToken();
             errorCheck(token, "RPAREN");
-            rParenCount++;
-            System.out.println("count: " + rParenCount);
+//            rParenCount++;
+//            System.out.println("count: " + rParenCount);
             return new Node("list", funcType, first, null);
         }
         // just a list

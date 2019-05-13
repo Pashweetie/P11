@@ -215,7 +215,7 @@ public class Lexer {
                         data.equals("le") ||data.equals("eq") ||
                         data.equals("ne") ||data.equals("and") ||
                         data.equals("or") ||data.equals("not") ||
-                        data.equals("define")
+                        data.equals("define") || data.equals("if")
                         ) {
                     return new Token( "KEYWORD", data );
                 }

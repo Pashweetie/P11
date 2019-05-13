@@ -17,7 +17,7 @@ public class Node {
     // the actual identifier for an I
 
     // references to children in the parse tree
-    private Node first, second;
+    private Node first, second, third;
 
     private StackFrame params;
 
@@ -48,12 +48,12 @@ public class Node {
     }
 
     // construct a def node with params frame for params
-    public Node(String k, String inf, Node one, Node two, StackFrame stack){
+    public Node(String k, String inf, Node one, Node two, Node three){
         kind = k;
         info = inf;
         first = one;
         second = two;
-        this.params = stack;
+        third = three;
         id = count;
         count++;
         System.out.println(this);
@@ -106,6 +106,7 @@ public class Node {
         int count = 0;
         if (first != null) count++;
         if (second != null) count++;
+        if (third != null) count++;
         Node[] children = new Node[count];
         int k = 0;
         if (first != null) {
@@ -115,6 +116,9 @@ public class Node {
         if (second != null) {
             children[k] = second;
             k++;
+        }
+        if (third != null) {
+            children[k] = third;
         }
 
         return children;
@@ -217,7 +221,8 @@ public class Node {
                         case "rest":
                             return arg1.rest();
                         case "null":
-                            if(arg1.isEmpty()) return ONE;
+                            System.out.println(arg1.toString());
+                            if(arg1.isNull()) return ONE;
                             else return ZERO;
                         case "num":
                             if(arg1.isNumber()) return ONE;
@@ -293,6 +298,12 @@ public class Node {
                             return newList;
                     }
                 }
+                else if(kind.equals("if")){
+                    Value condition = first.evaluate(defsList, defNames, params);
+                    System.out.println("Got condition");
+                    if(condition.getNumber() == 1) return second.evaluate(defsList, defNames, params);
+                    else return third.evaluate(defsList, defNames, params);
+                }
                 // Handles and locates user defined functions
                 else if(defNames.contains(info)){
                     int index = defNames.indexOf(info);
@@ -315,15 +326,22 @@ public class Node {
             }
         }
         else{ // items
-            //System.out.println("Evaluating items...");
+            System.out.println("Evaluating items...");
             Value items = new Value();
+
 
             if (second == null){
                 items = items.insert(first.evaluate(defsList, defNames, params));
                 return items;
-            } else{
+            }
+            else{
+                System.out.println(second.toString());
                 items = second.evaluate(defsList, defNames, params);
+                System.out.println("Got second: " + items.toString());
+
                 items = items.insert(first.evaluate(defsList, defNames, params));
+                System.out.println("Got first");
+
                 return items;
             }
         }
@@ -360,12 +378,18 @@ public class Node {
             param = param.first;
         }
 
+
         // add all names and values to StackFrame p
         for(int i = 0; i < paramNames.size(); i++){
-            p.add(paramNames.get(i), f);
-            if(! r.isEmpty()) {
-                f = r.first();
-                r = r.rest();
+            // for items
+            if(userParams.getKind().equals("list")){
+                p.add(paramNames.get(i), userParamsList);
+            } else {
+                p.add(paramNames.get(i), f);
+                if (!r.isEmpty()) {
+                    f = r.first();
+                    r = r.rest();
+                }
             }
         }
         return p;
