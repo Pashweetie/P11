@@ -20,11 +20,11 @@ public class Node {
     // references to children in the parse tree
     private Node first, second;
 
-    private StackFrame stack;
+    private StackFrame params;
 
-    // stack of memories for all pending calls
+    // params of memories for all pending calls
     private static ArrayList<MemTable> memStack = new ArrayList<>();
-    // convenience reference to top MemTable on stack
+    // convenience reference to top MemTable on params
     private static MemTable table = new MemTable();
 
     /** built in functions */
@@ -37,11 +37,6 @@ public class Node {
     private final static String[] bif2 = {"lt", "le", "eq", "ne", "and", "or",
             "not", "plus", "minus", "times", "div", "ins"};
 
-
-    private static Node root;  // root of the entire parse tree
-
-    private static Scanner keys = new Scanner(System.in);
-
     // construct a common node with no info specified
     public Node(String k, Node one, Node two) {
         kind = k;
@@ -53,13 +48,13 @@ public class Node {
         System.out.println(this);
     }
 
-    // construct a def node with stack frame for params
+    // construct a def node with params frame for params
     public Node(String k, String inf, Node one, Node two, StackFrame stack){
         kind = k;
         info = inf;
         first = one;
         second = two;
-        this.stack = stack;
+        this.params = stack;
         id = count;
         count++;
         System.out.println(this);
@@ -102,12 +97,12 @@ public class Node {
 
     // produce array with the non-null children
     // in order
-    public String getKind(){
-      return kind;
-    }
+    public String getKind(){ return kind; }
+
     public String getInfo(){
       return info;
     }
+
     public Node[] getChildren() {
         int count = 0;
         if (first != null) count++;
@@ -174,13 +169,8 @@ public class Node {
 
     }// draw
 
-    public static void error(String message) {
-        System.out.println(message);
-        System.exit(1);
-    }
-
     // needs to return Value objects
-    public Value evaluate() {
+    public Value evaluate(HashMap<String, Node> defsList, StackFrame params) {
         Value arg1, arg2;
 
         Value ZERO = new Value( 0 );
@@ -188,25 +178,31 @@ public class Node {
 
         Value ans = null;
         if(kind.equals("defs")){
-            ans = first.evaluate();
+            ans = first.evaluate(defsList, null);
             //System.out.println("Evaluating defs..." + ans);
         }
         else if(kind.equals("def")){
             System.out.println("Evaluating def...");
+            if(first.getKind().equals("params")) {
+                params = first.passParams(); // evaluate the params
+                ans = second.evaluate(defsList, params);
+            } else{
+                ans = first.evaluate(defsList, null);
+            }
             // Need to find a place to store custom defs
         }
-        else if(kind.equals("params")){
-            System.out.println("Evaluating params...");
-            // Need to pass names to funciton
+        else if(kind.equals("name")){
+            // retrieves value for name
+            return params.retrieve(info);
         }
         else if(kind.equals("expr")){
             //System.out.println("Evaluating expression...");
             if(!info.equals("")){
                 return new Value(Double.parseDouble(info));
-            } else{
-                return first.evaluate();
             }
-
+            else{
+                return first.evaluate(defsList, params);
+            }
         }
         else if(kind.equals("list")){
             //System.out.println("Evaluating list...");
@@ -224,7 +220,7 @@ public class Node {
                             System.out.print("\n> ");
                     }
                 } else if(member(info, bif1)){
-                    arg1 = first.evaluate();
+                    arg1 = first.evaluate(defsList, params);
                     switch (info) {
                         case "not":
                             if(arg1.getNumber() == 0) return ONE;
@@ -255,58 +251,67 @@ public class Node {
                     // Since list can only possess one "items" node, must create
                     // this special case
                     if(first.getKind().equals("items")) {
-                        Value items = first.evaluate();
+                        Value items = first.evaluate(defsList, params);
                             arg1 = items.first();
                             arg2 = items.rest().first();
                     }
                     // For lists and functions
                     else{
-                        arg1 = first.evaluate();
-                        arg2 = second.evaluate();
+                        arg1 = first.evaluate(defsList, params);
+                        arg2 = second.evaluate(defsList, params);
                     }
                     switch (info) {
                         case "plus":
+                            if(!arg2.isNumber()) arg2 = arg2.first();
                             double sum = arg1.getNumber() + arg2.getNumber();
                             ans = new Value(sum);
                             return ans;
                         case "minus":
+                            if(!arg2.isNumber()) arg2 = arg2.first();
                             double min = arg1.getNumber() - arg2.getNumber();
                             ans = new Value(min);
                             return ans;
                         case "times":
+                            if(!arg2.isNumber()) arg2 = arg2.first();
                             double mul = arg1.getNumber() * arg2.getNumber();
                             ans = new Value(mul);
                             return ans;
                         case "div":
+                            if(!arg2.isNumber()) arg2 = arg2.first();
                             double div = arg1.getNumber() / arg2.getNumber();
                             ans = new Value(div);
                             return ans;
                         case "lt":
+                            if(!arg2.isNumber()) arg2 = arg2.first();
                             if(arg1.getNumber() < arg2.getNumber())
                                 ans = ONE;
                             else ans = ZERO;
                             return ans;
-
                         case "le":
+                            if(!arg2.isNumber()) arg2 = arg2.first();
                             if(arg1.getNumber() <= arg2.getNumber()) ans = ONE;
                             else ans = ZERO;
                             return ans;
                         case "eq":
+                            if(!arg2.isNumber()) arg2 = arg2.first();
                             if(arg1.getNumber() == arg2.getNumber())
                                 ans = ONE;
                             else ans = ZERO;
                             return ans;
                         case "ne":
+                            if(!arg2.isNumber()) arg2 = arg2.first();
                             if(arg1.getNumber() != arg2.getNumber())
                                 ans = ONE;
                             else ans = ZERO;
                             return ans;
                         case "and":
+                            if(!arg2.isNumber()) arg2 = arg2.first();
                             if(arg1.getNumber() > 0 && arg2.getNumber() > 0)
                                 ans = ONE;
                             else ans = ZERO;
                             return ans;
                         case "or":
+                            if(!arg2.isNumber()) arg2 = arg2.first();
                             if(arg1.getNumber() > 0 || arg2.getNumber() > 0)
                                 ans = ONE;
                             else ans = ZERO;
@@ -318,12 +323,17 @@ public class Node {
                             return newList;
                     }
                 }
-            } else{
+            }
+            else if(defsList.containsKey(info)){
+                Node def = defsList.get(info);
+                return def.evaluate(defsList, null);
+            }
+            else{
                 // empty list
                 if(first == null){
                     return new Value();
                 }
-                return first.evaluate();
+                return first.evaluate(defsList, params);
             }
         }
         else{ // items
@@ -331,11 +341,11 @@ public class Node {
             Value items = new Value();
 
             if (second == null){
-                items = items.insert(first.evaluate());
+                items = items.insert(first.evaluate(defsList, params));
                 return items;
             } else{
-                items = second.evaluate();
-                items = items.insert(first.evaluate());
+                items = second.evaluate(defsList, params);
+                items = items.insert(first.evaluate(defsList, params));
                 return items;
             }
         }
@@ -352,62 +362,9 @@ public class Node {
         return false;
     }
 
-    // given a funcCall node, and for convenience name,
-    // locate the function in the function defs and
-    // create new memory table with arguments values assigned
-    // to parameters
-    // Also, return root node of body of the function being called
-    private static Node passArgs (Node funcCallNode, String funcName ){
+    private static StackFrame passParams(){
 
-        // locate the function in the function definitions
-
-        Node node = root;  // the program node
-        node = node.second;  // now is the funcDefs node
-        Node fdnode = null;
-        while (node != null && fdnode == null) {
-            if (node.first.info.equals(funcName)) {// found it
-                fdnode = node.first;
-                // System.out.println("located " + funcName + " at node " +
-                //                     fdnode.id );
-            } else {
-                node = node.second;
-            }
-        }
-
-        MemTable newTable = new MemTable();
-
-        if (fdnode == null) {// function not found
-            error("Function definition for [" + funcName + "] not found");
-            return null;
-        } else {// function name found
-            Node pnode = fdnode.first; // current params node
-            Node anode = funcCallNode.first;  // current args node
-            while (pnode != null && anode != null) {
-                // store argument value under parameter name
-                newTable.store(pnode.first.info,
-                        anode.first.evaluate().getNumber());
-                // move ahead
-                pnode = pnode.second;
-                anode = anode.second;
-            }
-
-            // detect errors
-            if (pnode != null) {
-                error("there are more parameters than arguments");
-            } else if (anode != null) {
-                error("there are more arguments than parameters");
-            }
-
-//         System.out.println("at start of call to " + funcName +
-//                           " memory table is:\n" + newTable );
-
-            // manage the memtable stack
-            memStack.add(newTable);
-            table = newTable;
-
-            return fdnode;
-
-        }// function name found
-    }// passArguments
+        return null;
+    }
 
 }// Node

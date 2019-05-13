@@ -13,8 +13,8 @@ public class StackFrame {
     private ArrayList<Value> values;
 
     public StackFrame() {
-        names = new ArrayList<String>();
-        values = new ArrayList<Value>();
+        names = new ArrayList<>();
+        values = new ArrayList<>();
     }
 
     // return value bound to name in this

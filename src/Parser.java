@@ -3,13 +3,11 @@ import java.io.*;
 public class Parser {
 
     private Lexer lex;
-    private Parser parsed;
-    private ArrayList<Node> defs = new ArrayList<>();
+    private HashMap<String, Node> defs = new HashMap<>();
     int rParenCount = 0;
 
-    public Parser( Lexer lexer, Parser parser ) {
+    public Parser( Lexer lexer) {
             lex = lexer;
-            parsed = parser;
     }
 
     public Node parseProgram(){
@@ -20,12 +18,7 @@ public class Parser {
           }
           errorCheck(token, "LPAREN", "(");
           token = lex.getNextToken();
-          if(token.isKind("NAME")){
-              lex.putBackToken(token);
-            Node first = parseName();
-            return new Node("program",first,null);
-          }
-          else if(token.getDetails().equals("define") && token.isKind("KEYWORD")){
+          if(token.getDetails().equals("define") && token.isKind("KEYWORD")){
               System.out.println("Parsing define...");
               lex.putBackToken(token);
               Node first = parseDefs();
@@ -39,21 +32,6 @@ public class Parser {
           // need to handle where a list goes
           error("if type isnt name or defs this isn't a valid input/file");
           return new Node(token);
-    }
-
-    public Node parseName(){
-        Token token = lex.getNextToken();
-        Node thisNode = new Node("NAME",token.getDetails(),null,null);
-        Node first = null;
-        if(parsed.defs.contains(thisNode)){
-            first = findNode(thisNode);
-        } else{
-            System.out.println("ParserNameError: Def " + token.getDetails() + " does not exist.");
-            System.exit(1);
-        }
-
-        if(first != null) return new Node("NAME",token.getDetails(),first,null);
-        else return new Node("NAME",token.getDetails(),null,null);
     }
 
     public Node parseDefs() {
@@ -104,7 +82,7 @@ public class Parser {
             def1 = new Node("def",name.getDetails(),first, second);
         }
 
-        defs.add(def1);
+        defs.put(def1.getInfo(), def1);
         return def1;
     }
 
@@ -136,6 +114,10 @@ public class Parser {
         if ( token.isKind("LPAREN") ) {
             Node first = parseList();
             return new Node("expr", first, null);
+        }
+        // is a named variable
+        else if ( token.isKind("NAME")){
+            return new Node("name", token.getDetails(), null, null);
         }
         // is a num
         else{
@@ -258,14 +240,6 @@ public class Parser {
             System.exit(1);
         }
     }
-    private Node findNode(Node start){
-          for(Node node : parsed.defs){
-              if(start.getInfo().equals(node.getInfo())){
-                  return node;
-              }
-          }
-          return null;
-    }
 
     // check whether token is correct kind and details
     private void errorCheck( Token token, String kind, String details ) {
@@ -278,7 +252,7 @@ public class Parser {
         }
     }
 
-    public ArrayList<Node> getDefs(){
+    public HashMap<String, Node> getDefs(){
         return defs;
     }
 

@@ -1,5 +1,5 @@
 import java.io.File;
-import java.util.List;
+import java.util.HashMap;
 import java.util.Scanner;
 
 public class Corgi {
@@ -17,7 +17,7 @@ public class Corgi {
 
         // Objects relating to predefined functions
         Lexer fileLex = new Lexer(name);
-        Parser fileParser = new Parser(fileLex,null );
+        Parser fileParser = new Parser(fileLex);
         Scanner scan = new Scanner(System.in);
         Node root2 = fileParser.parseProgram();
         fileLex.closeStream();
@@ -30,15 +30,15 @@ public class Corgi {
         while(!command.equals("(quit)")) {
             // Objects relating to REPL
             Lexer inputLex = new Lexer(command);
-            Parser inputParser = new Parser(inputLex, fileParser);
+            Parser inputParser = new Parser(inputLex);
             // root node for REPL
             Node root = inputParser.parseProgram();
-            List<Node> defs = inputParser.getDefs(); // will this work?
+            HashMap<String, Node> defs = inputParser.getDefs(); // will this work?
 
             // display parse tree for debugging/testing:
             //TreeViewer viewer = new TreeViewer("Parse Tree", 0, 0, 800, 500, root);
 
-            Value ans = root.evaluate();
+            Value ans = root.evaluate(defs, null);
 
             // return the answer
             System.out.println(ans.toString());
